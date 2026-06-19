@@ -1,0 +1,40 @@
+:host {
+  display: block;
+}
+
+.auth-layout {
+  position: relative;
+  display: grid;
+  min-height: 100dvh;
+  align-items: start;
+  justify-items: center;
+  overflow: hidden;
+  padding: var(--space-lg) var(--space-md);
+}
+
+@media (min-width: 768px) {
+  .auth-layout {
+    padding-block: var(--space-xl);
+  }
+}
+
+.auth-layout__pattern,
+.auth-layout__accent {
+  position: absolute;
+  pointer-events: none;
+}
+
+.auth-layout__pattern {
+  inset: 0;
+  background-image: radial-gradient(var(--color-primary-container) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.03;
+}
+
+.auth-layout__accent {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 24rem;
+  background: linear-gradient(to bottom, var(--color-surface-container), transparent);
+}

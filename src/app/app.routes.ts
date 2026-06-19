@@ -16,6 +16,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('@features/auth/pages/login/login.component').then((m) => m.LoginComponent),
       },
+      {
+        path: 'register',
+        loadComponent: () =>
+          import('@features/auth/pages/register/register.component').then(
+            (m) => m.RegisterComponent
+          ),
+      },
     ],
   },
   {
@@ -32,15 +39,34 @@ export const routes: Routes = [
             (m) => m.CoordinadorHomeComponent
           ),
       },
+      {
+        path: 'profesor',
+        loadComponent: () =>
+          import('@features/profesor/pages/profesor-home/profesor-home.component').then(
+            (m) => m.ProfesorHomeComponent
+          ),
+      },
+      {
+        path: 'padre',
+        loadComponent: () =>
+          import('@features/padre/pages/padre-home/padre-home.component').then(
+            (m) => m.PadreHomeComponent
+          ),
+      },
     ],
   },
   {
-    path: '**',
-    redirectTo: '404',
+    path: '403',
+    loadComponent: () =>
+      import('@shared/components/forbidden/forbidden.component').then((m) => m.ForbiddenComponent),
   },
   {
     path: '404',
     loadComponent: () =>
       import('@shared/components/not-found/not-found.component').then((m) => m.NotFoundComponent),
+  },
+  {
+    path: '**',
+    redirectTo: '404',
   },
 ];

@@ -1,1 +1,306 @@
-/* You can add global styles to this file, and also import other style files */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-surface: #f8f9ff;
+  --color-surface-dim: #cbdbf5;
+  --color-surface-bright: #f8f9ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #eff4ff;
+  --color-surface-container: #e5eeff;
+  --color-surface-container-high: #dce9ff;
+  --color-surface-container-highest: #d3e4fe;
+  --color-on-surface: #0b1c30;
+  --color-on-surface-variant: #444653;
+  --color-inverse-surface: #213145;
+  --color-inverse-on-surface: #eaf1ff;
+  --color-outline: #757684;
+  --color-outline-variant: #c4c5d5;
+  --color-surface-tint: #3755c3;
+  --color-primary: #00288e;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1e40af;
+  --color-on-primary-container: #a8b8ff;
+  --color-inverse-primary: #b8c4ff;
+  --color-secondary: #855300;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fea619;
+  --color-on-secondary-container: #684000;
+  --color-tertiary: #611e00;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #872d00;
+  --color-on-tertiary-container: #ffa583;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-background: #f8f9ff;
+  --color-on-background: #0b1c30;
+  --color-surface-variant: #d3e4fe;
+
+  --font-family-base: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-size-display-lg: 2.5rem;
+  --font-size-headline-lg: 1.5rem;
+  --font-size-headline-md: 1.5rem;
+  --font-size-headline-sm: 1.25rem;
+  --font-size-body-lg: 1.125rem;
+  --font-size-body-md: 1rem;
+  --font-size-body-sm: 0.875rem;
+  --font-size-label-lg: 0.875rem;
+  --font-size-label-md: 0.75rem;
+  --font-size-label-sm: 0.6875rem;
+
+  --line-height-display-lg: 3rem;
+  --line-height-headline-lg: 2rem;
+  --line-height-headline-md: 2rem;
+  --line-height-headline-sm: 1.75rem;
+  --line-height-body-lg: 1.75rem;
+  --line-height-body-md: 1.5rem;
+  --line-height-body-sm: 1.25rem;
+  --line-height-label: 1.25rem;
+
+  --radius-sm: 0.25rem;
+  --radius-default: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-gutter: 1rem;
+  --space-page-mobile: 1rem;
+  --space-page-desktop: 2rem;
+
+  --sidebar-width: 17.5rem;
+  --border-subtle: 1px solid #e2e8f0;
+  --shadow-level-1: 0 4px 12px rgb(15 23 42 / 2%);
+  --shadow-level-2: 0 12px 32px rgb(15 23 42 / 8%);
+  --focus-ring: 0 0 0 3px rgb(30 64 175 / 20%);
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--color-background);
+  color: var(--color-on-background);
+  color-scheme: light;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-body-md);
+  line-height: var(--line-height-body-md);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-width: 320px;
+}
+
+img,
+picture,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-on-surface);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: var(--font-size-headline-lg);
+  line-height: var(--line-height-headline-lg);
+}
+
+h2 {
+  font-size: var(--font-size-headline-md);
+  line-height: var(--line-height-headline-md);
+}
+
+h3 {
+  font-size: var(--font-size-headline-sm);
+  line-height: var(--line-height-headline-sm);
+}
+
+p {
+  color: var(--color-on-surface-variant);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-primary-container);
+  outline-offset: 2px;
+}
+
+.app-page {
+  display: grid;
+  gap: var(--space-gutter);
+}
+
+.app-card {
+  border: var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-container-lowest);
+  box-shadow: var(--shadow-level-1);
+}
+
+.app-card__header {
+  border-bottom: var(--border-subtle);
+  padding: var(--space-lg);
+}
+
+.app-card__body {
+  padding: var(--space-lg);
+}
+
+.app-button {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-default);
+  padding: 0 var(--space-md);
+  font-size: var(--font-size-label-lg);
+  font-weight: 600;
+  line-height: var(--line-height-label);
+  text-decoration: none;
+}
+
+.app-button--primary {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary);
+}
+
+.app-button--secondary {
+  border-color: #cbd5e1;
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+}
+
+.app-button--ghost {
+  background: transparent;
+  color: var(--color-primary-container);
+}
+
+.app-input,
+.app-select,
+.app-textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-default);
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  padding: 0.625rem 0.75rem;
+}
+
+.app-input:focus,
+.app-select:focus,
+.app-textarea:focus {
+  border-color: var(--color-primary-container);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+
+.app-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.app-table th {
+  background: #f1f5f9;
+  color: var(--color-on-surface-variant);
+  font-size: var(--font-size-label-md);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.app-table th,
+.app-table td {
+  border-bottom: 1px solid #f1f5f9;
+  padding: 0.75rem 1rem;
+}
+
+.app-table tbody tr:hover {
+  background: var(--color-surface-container-low);
+}
+
+.app-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-full);
+  padding: 0.25rem 0.625rem;
+  font-size: var(--font-size-label-md);
+  font-weight: 600;
+  line-height: 1rem;
+}
+
+.app-chip--pending {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.app-chip--resolved {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.app-chip--critical {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --font-size-display-lg: 3rem;
+    --font-size-headline-lg: 2rem;
+    --line-height-display-lg: 3.5rem;
+    --line-height-headline-lg: 2.5rem;
+    --space-gutter: 1.5rem;
+  }
+}

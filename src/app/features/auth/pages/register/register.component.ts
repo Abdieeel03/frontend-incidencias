@@ -4,9 +4,9 @@ import { RouterLink } from '@angular/router';
 import { AuthSubmitButtonComponent } from '@app/features/auth/components/auth-submit-button/auth-submit-button.component';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-register',
   imports: [AuthSubmitButtonComponent, RouterLink],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.css',
+  templateUrl: './register.component.html',
+  styleUrl: './register.component.css',
 })
-export class LoginComponent {}
+export class RegisterComponent {}

@@ -1,3 +1,37 @@
-<main>
-  <router-outlet />
-</main>
+<div class="dashboard-layout">
+  <header class="dashboard-mobile-header">
+    <button
+      class="dashboard-menu-button"
+      type="button"
+      aria-label="Abrir menu lateral"
+      [attr.aria-expanded]="isSidebarOpen()"
+      aria-controls="dashboard-sidebar"
+      (click)="toggleSidebar()"
+    >
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </button>
+    <span class="dashboard-mobile-header__title">Sistema de Incidencias</span>
+  </header>
+
+  @if (isSidebarOpen()) {
+    <button
+      class="dashboard-backdrop"
+      type="button"
+      aria-label="Cerrar menu lateral"
+      (click)="closeSidebar()"
+    ></button>
+  }
+
+  <aside
+    id="dashboard-sidebar"
+    class="dashboard-sidebar"
+    [class.dashboard-sidebar--open]="isSidebarOpen()"
+    aria-label="Barra lateral"
+  ></aside>
+
+  <main class="dashboard-content">
+    <router-outlet />
+  </main>
+</div>
