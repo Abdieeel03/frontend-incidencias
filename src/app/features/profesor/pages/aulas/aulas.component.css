@@ -1,0 +1,190 @@
+.aulas-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.aulas-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.aulas-title {
+  color: var(--color-primary);
+  font-size: var(--font-size-headline-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-xs);
+}
+
+.aulas-subtitle {
+  color: var(--color-on-surface-variant);
+  font-size: var(--font-size-body-md);
+}
+
+.select-nivel {
+  min-width: 200px;
+}
+
+.aulas-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+
+.aula-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  min-height: 280px;
+  background: var(--color-surface-container-lowest);
+  border: var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-level-1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aula-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-level-2);
+}
+
+.aula-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.aula-card__nombre {
+  font-size: var(--font-size-headline-md);
+  color: var(--color-on-surface);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.aula-card__materia {
+  font-size: var(--font-size-label-sm);
+  color: var(--color-on-surface-variant);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.aula-tag-nivel {
+  font-size: var(--font-size-label-md);
+  font-weight: 500;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-full);
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.aula-tag-nivel--secundaria {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.aula-card__alumnos {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-on-surface-variant);
+}
+
+.icon-alumnos {
+  width: 1.25rem;
+  height: 1.25rem;
+  opacity: 0.7;
+}
+
+.alumnos-count {
+  font-size: var(--font-size-body-sm);
+  font-weight: 500;
+}
+
+.aula-card__estado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  border-top: 1px solid #f1f5f9;
+  padding-top: var(--space-md);
+}
+
+.estado-label {
+  font-size: var(--font-size-label-sm);
+  color: var(--color-on-surface-variant);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.estado-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.badge-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-default);
+  background: #f0fdf4;
+  color: #166534;
+  font-size: var(--font-size-body-sm);
+  font-weight: 500;
+  border: 1px solid #dcfce7;
+  width: 100%;
+}
+
+.icon-check {
+  width: 1rem;
+  height: 1rem;
+}
+
+.icon-badge {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+}
+
+.btn-detalles {
+  width: 100%;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.icon-arrow {
+  width: 1.125rem;
+  height: 1.125rem;
+  transition: transform 0.2s ease;
+}
+
+.btn-detalles:hover .icon-arrow {
+  transform: translateX(4px);
+}
+
+@media (min-width: 768px) {
+  .aulas-header {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .aulas-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .aulas-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
