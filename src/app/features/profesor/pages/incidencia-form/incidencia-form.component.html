@@ -1,1 +1,172 @@
-<p>incidencia-form works!</p>
+<!-- Cabecera global reutilizable -->
+<app-profesor-header [titulo]="isEditMode() ? 'Editar Incidencia' : 'Crear Nueva Incidencia'"></app-profesor-header>
+
+<div class="form-page-content">
+  <a routerLink="/profesor/incidencias" class="link-back">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="icon-back">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+    </svg>
+    Volver a Incidencias
+  </a>
+
+  <header class="form-page-header">
+    <h1 class="form-title">{{ isEditMode() ? 'Editar Incidencia' : 'Crear Nueva Incidencia' }}</h1>
+    <p class="form-subtitle">
+      {{ isEditMode() ? 'Modifique los detalles de la incidencia disciplinaria o de convivencia seleccionada.' : 'Registre los detalles de la incidencia disciplinaria o de convivencia.' }}
+    </p>
+  </header>
+
+  <div class="app-card form-card">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="reactive-form">
+      
+      <div class="form-group full-width">
+        <label for="title" class="form-label">Título de la incidencia *</label>
+        <input 
+          id="title" 
+          type="text" 
+          formControlName="title" 
+          placeholder="Ej. Interrupción reiterada en clase" 
+          class="app-input" 
+          [class.app-input--error]="form.get('title')?.touched && form.get('title')?.invalid"
+        />
+        @if (form.get('title')?.touched && form.get('title')?.errors?.['required']) {
+          <span class="error-text">El título es obligatorio.</span>
+        }
+        @if (form.get('title')?.touched && form.get('title')?.errors?.['maxlength']) {
+          <span class="error-text">El título no puede superar los 100 caracteres.</span>
+        }
+      </div>
+
+      <div class="form-row-2">
+        
+        <div class="form-group student-search-group">
+          <label for="studentSearch" class="form-label">Alumno Implicado *</label>
+          <div class="autocomplete-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon-search-input">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.637 10.637Z" />
+            </svg>
+            <input 
+              id="studentSearch" 
+              type="text" 
+              placeholder="Ingrese DNI o Código de alumno" 
+              class="app-input search-input" 
+              [value]="busquedaAlumno()"
+              (input)="onStudentSearchInput($event)"
+              (focus)="mostrarSugerencias.set(true)"
+              [class.app-input--error]="form.get('studentId')?.touched && form.get('studentId')?.invalid"
+            />
+            
+            @if (mostrarSugerencias() && alumnosFiltrados().length > 0) {
+              <ul class="suggestions-list">
+                @for (al of alumnosFiltrados(); track al.id) {
+                  <li>
+                    <button type="button" class="suggestion-item" (click)="seleccionarAlumno(al)">
+                      <span class="suggestion-name">{{ al.nombre }}</span>
+                      <span class="suggestion-meta">DNI: {{ al.dni }} | Cód: {{ al.codigo }}</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+          @if (alumnoSeleccionado(); as sel) {
+            <span class="helper-text-success">Alumno seleccionado: {{ sel.codigo }} (DNI: {{ sel.dni }})</span>
+          } @else {
+            <span class="helper-text">Busque por nombre, DNI o número de identificación.</span>
+          }
+          @if (form.get('studentId')?.touched && form.get('studentId')?.invalid) {
+            <span class="error-text">Debe seleccionar un alumno de la lista.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="classId" class="form-label">Aula / Clase *</label>
+          <select 
+            id="classId" 
+            formControlName="classId" 
+            class="app-select"
+            [class.app-input--error]="form.get('classId')?.touched && form.get('classId')?.invalid"
+          >
+            <option value="" disabled selected>Seleccione el aula...</option>
+            @for (clase of clases(); track clase.id) {
+              <option [value]="clase.id">{{ clase.nombre }}</option>
+            }
+          </select>
+          @if (form.get('classId')?.touched && form.get('classId')?.invalid) {
+            <span class="error-text">Debe seleccionar una clase.</span>
+          }
+        </div>
+
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label for="incidentDate" class="form-label">Fecha de la incidencia *</label>
+          <input 
+            id="incidentDate" 
+            type="date" 
+            formControlName="incidentDate" 
+            class="app-input"
+            [class.app-input--error]="form.get('incidentDate')?.touched && form.get('incidentDate')?.invalid"
+          />
+          @if (form.get('incidentDate')?.touched && form.get('incidentDate')?.invalid) {
+            <span class="error-text">La fecha es obligatoria.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="incidentTime" class="form-label">Hora aproximada</label>
+          <input 
+            id="incidentTime" 
+            type="time" 
+            formControlName="incidentTime" 
+            class="app-input"
+          />
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="description" class="form-label">Descripción detallada *</label>
+        <textarea 
+          id="description" 
+          formControlName="description" 
+          rows="5" 
+          placeholder="Describa los hechos de manera objetiva..." 
+          class="app-textarea"
+          [class.app-input--error]="form.get('description')?.touched && form.get('description')?.invalid"
+        ></textarea>
+        <div class="textarea-footer">
+          @if (form.get('description')?.touched && form.get('description')?.invalid) {
+            <span class="error-text no-margin">La descripción es obligatoria.</span>
+          } @else {
+            <span></span>
+          }
+          <span class="char-counter" [class.char-counter--limit]="caracteresCount() >= 500">
+            {{ caracteresCount() }}/500 caracteres
+          </span>
+        </div>
+      </div>
+
+      <div class="form-actions-footer">
+        <button 
+          type="button" 
+          routerLink="/profesor/incidencias" 
+          class="app-button app-button--secondary btn-form-act"
+        >
+          Cancelar
+        </button>
+        <button 
+          type="submit" 
+          [disabled]="form.invalid" 
+          class="app-button app-button--primary btn-form-act"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="icon-save">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12" />
+          </svg>
+          Guardar Incidencia
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
