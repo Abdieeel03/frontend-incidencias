@@ -41,10 +41,8 @@ export const routes: Routes = [
       },
       {
         path: 'profesor',
-        loadComponent: () =>
-          import('@features/profesor/pages/profesor-home/profesor-home.component').then(
-            (m) => m.ProfesorHomeComponent
-          ),
+        loadChildren: () =>
+          import('@features/profesor/profesor.routes').then((m) => m.routes),
       },
       {
         path: 'padre',
