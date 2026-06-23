@@ -21,18 +21,4 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/incidencias/incidencias.component').then((m) => m.IncidenciasComponent),
   },
-  {
-    path: 'incidencias/crear',
-    loadComponent: () =>
-      import('./pages/incidencia-form/incidencia-form.component').then(
-        (m) => m.IncidenciaFormComponent
-      ),
-  },
-  {
-    path: 'incidencias/editar/:id',
-    loadComponent: () =>
-      import('./pages/incidencia-form/incidencia-form.component').then(
-        (m) => m.IncidenciaFormComponent
-      ),
-  },
 ];

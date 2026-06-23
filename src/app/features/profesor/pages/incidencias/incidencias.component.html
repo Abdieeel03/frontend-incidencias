@@ -1,5 +1,7 @@
-<app-profesor-header titulo="Mis Aulas"></app-profesor-header>
+<app-profesor-header titulo="Gestión de Incidencias"></app-profesor-header>
+
 <div class="incidencias-page">
+  
   <header class="incidencias-header">
     <h1 class="incidencias-title">Gestión de Incidencias</h1>
     <p class="incidencias-subtitle">Monitorea, filtra y actualiza el estado de los reportes disciplinarios y de seguridad.</p>
@@ -41,13 +43,22 @@
         <button class="chip" [class.chip--active]="filtroEstado() === 'archivada'" (click)="setFiltro('archivada')">Archivadas</button>
       </div>
 
-      <button class="app-button app-button--secondary btn-export" type="button">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon-btn">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-        </svg>
-        Exportar CSV
-      </button>
+      <div class="table-header-buttons">
+        <button class="app-button app-button--secondary btn-export" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon-btn">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          Exportar CSV
+        </button>
+        <button class="app-button app-button--primary btn-new-incident-list" type="button" (click)="abrirFormularioCrear()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="icon-btn">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Registrar Incidencia
+        </button>
+      </div>
     </div>
+
     <div class="table-search-bar">
       <div class="search-input-wrapper">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon-search">
@@ -63,7 +74,6 @@
         />
       </div>
     </div>
-
 
     <div class="table-responsive">
       <table class="app-table">
@@ -96,7 +106,7 @@
               <td class="col-date">{{ incidencia.fecha }}</td>
               <td class="col-actions">
                 <button type="button" class="btn-action-ghost" (click)="abrirModal(incidencia)">Ver</button>
-                <button type="button" class="btn-action-ghost text-primary">Editar</button>
+                <button type="button" class="btn-action-ghost text-primary" (click)="abrirFormularioEditar(incidencia.id)">Editar</button>
               </td>
             </tr>
           } @empty {
@@ -108,7 +118,6 @@
       </table>
     </div>
 
-
     <div class="table-pagination">
       <span class="pagination-info">Mostrando 1 a {{ incidenciasFiltradas().length }} de {{ incidenciasFiltradas().length }} registros</span>
       <div class="pagination-buttons">
@@ -118,11 +127,9 @@
     </div>
   </div>
 
-
   @if (incidenciaSeleccionada(); as inc) {
     <div class="modal-overlay" (click)="cerrarModal()">
       <div class="app-card modal-card" (click)="$event.stopPropagation()">
-
         <header class="modal-card__header">
           <div class="modal-title-container">
             <span class="modal-badge-id">{{ inc.codigo }}</span>
@@ -130,6 +137,7 @@
           </div>
           <button type="button" class="btn-close" (click)="cerrarModal()" aria-label="Cerrar modal">×</button>
         </header>
+
         <div class="modal-card__body">
           <div class="detail-row">
             <span class="detail-label">Estudiante</span>
@@ -160,5 +168,13 @@
         </footer>
       </div>
     </div>
+  }
+
+  @if (mostrarFormModal()) {
+    <app-incidencia-form 
+      [incidenciaId]="idParaEditar()" 
+      (onClose)="cerrarFormulario()" 
+      (onSave)="guardarIncidencia($event)">
+    </app-incidencia-form>
   }
 </div>

@@ -1,5 +1,6 @@
 import { Component, signal, computed } from '@angular/core';
 import { ProfesorHeaderComponent } from '../../components/profesor-header/profesor-header.component';
+import { IncidenciaFormComponent } from '../incidencia-form/incidencia-form.component';
 
 interface IncidenciaMock {
   id: number;
@@ -8,7 +9,7 @@ interface IncidenciaMock {
   avatarUrl?: string;
   titulo: string;
   descripcion: string;
-  aula: string;      
+  aula: string;
   estado: 'abierta' | 'en_proceso' | 'resuelta' | 'archivada';
   fecha: string;
   hora: string;
@@ -16,7 +17,7 @@ interface IncidenciaMock {
 
 @Component({
   selector: 'app-incidencias',
-  imports: [ProfesorHeaderComponent],
+  imports: [ProfesorHeaderComponent, IncidenciaFormComponent],
   templateUrl: './incidencias.component.html',
   styleUrl: './incidencias.component.css'
 })
@@ -68,13 +69,12 @@ export class IncidenciasComponent {
     }
   ]);
 
-
   filtroEstado = signal<string>('todos');
   busqueda = signal<string>('');
   
-
   incidenciaSeleccionada = signal<IncidenciaMock | null>(null);
-
+  mostrarFormModal = signal<boolean>(false);
+  idParaEditar = signal<number | null>(null);
 
   incidenciasFiltradas = computed(() => {
     const query = this.busqueda().toLowerCase().trim();
@@ -91,7 +91,6 @@ export class IncidenciasComponent {
     });
   });
 
-
   setFiltro(estado: string): void {
     this.filtroEstado.set(estado);
   }
@@ -107,5 +106,41 @@ export class IncidenciasComponent {
 
   cerrarModal(): void {
     this.incidenciaSeleccionada.set(null);
+  }
+
+  abrirFormularioCrear(): void {
+    this.idParaEditar.set(null);
+    this.mostrarFormModal.set(true);
+  }
+
+  abrirFormularioEditar(id: number): void {
+    this.idParaEditar.set(id);
+    this.mostrarFormModal.set(true);
+  }
+
+  cerrarFormulario(): void {
+    this.mostrarFormModal.set(false);
+    this.idParaEditar.set(null);
+  }
+
+  guardarIncidencia(datos: any): void {
+    if (this.idParaEditar() !== null) {
+      alert('¡Incidencia actualizada correctamente (Mock)!');
+    } else {
+      alert('¡Incidencia registrada con éxito (Mock)!');
+      const nueva: IncidenciaMock = {
+        id: this.incidencias().length + 1,
+        codigo: `#INC-0${this.incidencias().length + 80}`,
+        estudiante: datos.studentId === 1 ? 'Alejandro Ramírez García' : 'Estudiante de Prueba',
+        titulo: datos.title,
+        descripcion: datos.description,
+        aula: '4to A - Matemáticas',
+        estado: 'abierta',
+        fecha: datos.incidentDate,
+        hora: datos.incidentTime
+      };
+      this.incidencias.update(list => [nueva, ...list]);
+    }
+    this.cerrarFormulario();
   }
 }
