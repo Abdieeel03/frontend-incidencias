@@ -1,5 +1,10 @@
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
 
+## Package manager
+
+- Always use pnpm
+- If dependencies needed always let me know what dependencies and if it is necessary install them.
+
 ## TypeScript Best Practices
 
 - Use strict type checking
