@@ -5,7 +5,7 @@ export const IncidentStatus = {
 
 export type IncidentStatusType = (typeof IncidentStatus)[keyof typeof IncidentStatus];
 
-export interface IncidentResponse {
+export type IncidentResponse = {
   id: number;
   title: string;
   description: string;
@@ -17,4 +17,4 @@ export interface IncidentResponse {
   className: string;
   teacherId: number;
   teacherName: string;
-}
+};
