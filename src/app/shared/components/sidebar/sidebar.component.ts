@@ -12,6 +12,12 @@ type SidebarItem = {
 
 type DashboardSection = 'coordinador' | 'profesor' | 'padre';
 
+const TITLE_MAP: Record<DashboardSection, string> = {
+  coordinador: 'Coordinador Panel',
+  profesor: 'Profesor Panel',
+  padre: 'Padre Panel',
+};
+
 const SECTION_NAVIGATION: Record<DashboardSection, readonly SidebarItem[]> = {
   coordinador: [
     { label: 'Dashboard', icon: 'dashboard', path: '/coordinador' },
@@ -47,6 +53,7 @@ export class SidebarComponent {
   protected readonly section = computed(() => this.getSectionFromUrl());
   protected readonly settingsPath = '/settings';
   protected readonly navigationItems = computed(() => SECTION_NAVIGATION[this.section()]);
+  protected readonly title = computed(() => TITLE_MAP[this.section()]);
   protected readonly mockUser = {
     name: 'Usuario Demo',
     role: USER_ROLES.COORDINADOR,

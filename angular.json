@@ -10,7 +10,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "frontend-incidencias": {
+    "rise": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -82,10 +82,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "frontend-incidencias:build:production"
+              "buildTarget": "rise:build:production"
             },
             "development": {
-              "buildTarget": "frontend-incidencias:build:development"
+              "buildTarget": "rise:build:development"
             }
           },
           "defaultConfiguration": "development"
