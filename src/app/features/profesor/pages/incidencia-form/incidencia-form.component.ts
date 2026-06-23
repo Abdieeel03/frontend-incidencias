@@ -1,7 +1,5 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, input, output } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { ProfesorHeaderComponent } from '../../components/profesor-header/profesor-header.component';
 
 interface AlumnoMock {
   id: number;
@@ -17,18 +15,19 @@ interface ClaseMock {
 
 @Component({
   selector: 'app-incidencia-form',
-  imports: [ReactiveFormsModule, RouterLink, ProfesorHeaderComponent],
+  imports: [ReactiveFormsModule],
   templateUrl: './incidencia-form.component.html',
   styleUrl: './incidencia-form.component.css'
 })
 export class IncidenciaFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
+
+  incidenciaId = input<number | null>(null);
+  onClose = output<void>();
+  onSave = output<any>();
 
   form!: FormGroup;
-  isEditMode = signal<boolean>(false);
-  incidenciaId = signal<number | null>(null);
+  isEditMode = computed(() => this.incidenciaId() !== null);
 
   clases = signal<ClaseMock[]>([
     { id: 1, nombre: '4to A - Matemáticas' },
@@ -66,7 +65,11 @@ export class IncidenciaFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    this.checkEditMode();
+    
+    const id = this.incidenciaId();
+    if (id !== null) {
+      this.cargarDatosEdicion(id);
+    }
   }
 
   private initForm(): void {
@@ -82,16 +85,6 @@ export class IncidenciaFormComponent implements OnInit {
       incidentTime: [hoyHora, Validators.required],
       description: ['', [Validators.required, Validators.maxLength(500)]]
     });
-  }
-
-  private checkEditMode(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      const id = Number(idParam);
-      this.isEditMode.set(true);
-      this.incidenciaId.set(id);
-      this.cargarDatosEdicion(id);
-    }
   }
 
   private cargarDatosEdicion(id: number): void {
@@ -125,12 +118,17 @@ export class IncidenciaFormComponent implements OnInit {
     this.form.patchValue({ studentId: alumno.id });
   }
 
+  cancelar(): void {
+    this.onClose.emit();
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    alert(this.isEditMode() ? '¡Incidencia actualizada correctamente!' : '¡Incidencia registrada con éxito!');
-    this.router.navigate(['/profesor/incidencias']);
+
+    this.onSave.emit(this.form.value);
+    this.onClose.emit();
   }
 }
