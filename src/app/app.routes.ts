@@ -63,7 +63,7 @@ export const routes: Routes = [
   {
     path: '404',
     loadComponent: () =>
-      import('@shared/components/not-found/not-found.component').then((m) => m.NotFoundComponent),
+      import('@app/features/not-found/not-found.component').then((m) => m.NotFoundComponent),
   },
   {
     path: '**',
