@@ -35,8 +35,8 @@ export const routes: Routes = [
       {
         path: 'coordinador',
         loadComponent: () =>
-          import('@features/coordinador/pages/coordinador-home/coordinador-home.component').then(
-            (m) => m.CoordinadorHomeComponent
+          import('@features/coordinador/pages/coordinador-dashboard/coordinador-dashboard.component').then(
+            (m) => m.CoordinadorDashboardComponent
           ),
       },
       {
