@@ -1,6 +1,6 @@
 import { UserRole } from '@core/auth/models/user-role.model';
 
-export interface UserResponse {
+export type UserResponse = {
   id: number;
   username: string;
   email: string;
@@ -9,4 +9,4 @@ export interface UserResponse {
   role: UserRole | 'ADMIN';
   createdById?: number;
   createdByUsername?: string;
-}
+};

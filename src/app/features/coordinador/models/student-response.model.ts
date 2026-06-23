@@ -1,4 +1,4 @@
-export interface StudentResponse {
+export type StudentResponse = {
   id: number;
   firstName: string;
   lastName: string;
@@ -6,4 +6,4 @@ export interface StudentResponse {
   studentCode: string;
   parentId: number;
   parentName: string;
-}
+};

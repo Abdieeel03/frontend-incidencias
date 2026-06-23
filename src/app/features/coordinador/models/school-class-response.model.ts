@@ -1,13 +1,13 @@
-export interface SchoolClassStudent {
+export type SchoolClassStudent = {
   id: number;
   fullName: string;
   studentCode: string;
-}
+};
 
-export interface SchoolClassResponse {
+export type SchoolClassResponse = {
   id: number;
   name: string;
   teacherId: number;
   teacherName: string;
   students?: SchoolClassStudent[];
-}
+};
