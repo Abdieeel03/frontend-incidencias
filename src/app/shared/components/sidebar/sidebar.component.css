@@ -29,19 +29,10 @@
 }
 
 .sidebar-title {
-  color: var(--color-on-surface);
-  font-size: 1rem;
+  color: var(--color-primary);
+  font-size: 1.125rem;
   font-weight: 800;
   line-height: 1.2;
-}
-
-.sidebar-subtitle {
-  color: var(--color-on-surface-variant);
-  font-size: var(--font-size-label-sm);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  line-height: var(--line-height-label);
-  text-transform: uppercase;
 }
 
 .sidebar-nav {
