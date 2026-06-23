@@ -24,12 +24,14 @@
     ></button>
   }
 
-  <aside
+  <app-sidebar
     id="dashboard-sidebar"
     class="dashboard-sidebar"
+    [isOpen]="isSidebarOpen()"
     [class.dashboard-sidebar--open]="isSidebarOpen()"
     aria-label="Barra lateral"
-  ></aside>
+    (navigate)="closeSidebar()"
+  />
 
   <main class="dashboard-content">
     <router-outlet />
