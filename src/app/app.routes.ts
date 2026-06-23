@@ -58,12 +58,12 @@ export const routes: Routes = [
   {
     path: '403',
     loadComponent: () =>
-      import('@shared/components/forbidden/forbidden.component').then((m) => m.ForbiddenComponent),
+      import('@app/features/forbidden/forbidden.component').then((m) => m.ForbiddenComponent),
   },
   {
     path: '404',
     loadComponent: () =>
-      import('@shared/components/not-found/not-found.component').then((m) => m.NotFoundComponent),
+      import('@app/features/not-found/not-found.component').then((m) => m.NotFoundComponent),
   },
   {
     path: '**',

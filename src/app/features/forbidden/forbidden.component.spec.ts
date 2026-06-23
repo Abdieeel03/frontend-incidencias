@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ForbiddenComponent } from './forbidden.component';
+import { ForbiddenComponent } from '../../shared/components/forbidden/forbidden.component';
 
 describe('ForbiddenComponent', () => {
   let component: ForbiddenComponent;
