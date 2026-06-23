@@ -1,0 +1,78 @@
+<div class="children-page">
+  @if (children().length === 0) {
+  <p class="empty-state">No tienes estudiantes asignados a tu cuenta para ver reportes.</p>
+  } @else {
+  <div class="content-grid">
+    <aside class="app-card children-card" aria-labelledby="children-list-title">
+      <h1 id="children-list-title">Mis Hijos</h1>
+
+      <div class="children-list" role="list" aria-label="Lista de hijos">
+        @for (child of children(); track child.id) {
+        <button class="child-button" type="button" [class.child-button--selected]="selectedChildId() === child.id"
+          (click)="selectChild(child.id)">
+          <span class="child-button__content">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" />
+              <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
+            </svg>
+            <span>
+              <strong>{{ child.firstName }} {{ child.lastName }}</strong>
+              <small>Código: {{ child.studentCode }}</small>
+            </span>
+          </span>
+
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </button>
+        }
+      </div>
+    </aside>
+
+    @if (selectedChild(); as child) {
+    <section class="app-card timeline-card" aria-labelledby="timeline-title">
+      <h2 id="timeline-title">Timeline de Incidencias de {{ child.firstName }}</h2>
+
+      @if (selectedIncidents().length === 0) {
+      <p class="empty-state">No se registran incidencias para este estudiante.</p>
+      } @else {
+      <div class="timeline" aria-label="Timeline de incidencias">
+        @for (incident of selectedIncidents(); track incident.id) {
+        <article class="timeline-item" [class.timeline-item--pending]="incident.status === 'NO_LEIDA'">
+          <div class="timeline-marker" aria-hidden="true"></div>
+
+          <div class="timeline-content">
+            <div class="incident-heading">
+              <div>
+                <h3>{{ incident.title }}</h3>
+                <time [attr.datetime]="incident.incidentDate">
+                  {{ incident.incidentDate | date:'dd/MM/yyyy HH:mm' }}
+                </time>
+              </div>
+
+              <span class="app-chip" [class.app-chip--pending]="incident.status === 'NO_LEIDA'"
+                [class.app-chip--resolved]="incident.status === 'LEIDA'">
+                {{ incident.status === 'NO_LEIDA' ? 'No Leída' : 'Leída' }}
+              </span>
+            </div>
+
+            <p>{{ incident.description }}</p>
+
+            @if (incident.status === 'NO_LEIDA') {
+            <button class="mark-button" type="button" [disabled]="actionLoadingId() === incident.id"
+              (click)="markAsRead(incident.id)">
+              {{ actionLoadingId() === incident.id ? 'Marcando...' : 'Marcar como leída' }}
+            </button>
+            }
+          </div>
+        </article>
+        }
+      </div>
+      }
+    </section>
+    }
+  </div>
+  }
+</div>
