@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 
 const loadCoordinadorHome = () =>
-  import('@features/coordinador/pages/coordinador-home/coordinador-home.component').then(
-    (m) => m.CoordinadorHomeComponent
+  import('@features/coordinador/pages/coordinador-dashboard/coordinador-dashboard.component').then(
+    (m) => m.CoordinadorDashboardComponent
   );
 
 const loadProfesorHome = () =>

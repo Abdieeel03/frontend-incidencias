@@ -30,6 +30,10 @@ package-lock.json
 !.vscode/mcp.json
 .history/*
 
+# Skills
+.agents/
+skills-lock.json
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/
