@@ -1,6 +1,7 @@
 import { Component, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProfesorHeaderComponent } from '../../components/profesor-header/profesor-header.component';
+import { IncidenciaFormComponent } from '../incidencia-form/incidencia-form.component';
 
 interface IncidenciaReciente {
   id: number;
@@ -24,7 +25,7 @@ interface SalonResumen {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, ProfesorHeaderComponent],
+  imports: [RouterLink, ProfesorHeaderComponent, IncidenciaFormComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -73,6 +74,8 @@ export class DashboardComponent {
 
   busqueda = signal<string>('');
   incidenciaSeleccionada = signal<IncidenciaReciente | null>(null);
+  mostrarFormModal = signal<boolean>(false);
+  idParaEditar = signal<number | null>(null);
 
   incidenciasFiltradas = computed(() => {
     const query = this.busqueda().toLowerCase().trim();
@@ -96,5 +99,41 @@ export class DashboardComponent {
 
   cerrarModal(): void {
     this.incidenciaSeleccionada.set(null);
+  }
+
+  abrirFormularioCrear(): void {
+    this.idParaEditar.set(null);
+    this.mostrarFormModal.set(true);
+  }
+
+  abrirFormularioEditar(id: number): void {
+    this.idParaEditar.set(id);
+    this.mostrarFormModal.set(true);
+  }
+
+  cerrarFormulario(): void {
+    this.mostrarFormModal.set(false);
+    this.idParaEditar.set(null);
+  }
+
+  guardarIncidencia(datos: any): void {
+    if (this.idParaEditar() !== null) {
+      alert('¡Incidencia actualizada correctamente (Mock)!');
+    } else {
+      alert('¡Incidencia registrada con éxito (Mock)!');
+      const nueva: IncidenciaReciente = {
+        id: this.incidencias().length + 1042,
+        codigo: `#INC-${this.incidencias().length + 1042}`,
+        estudiante: datos.studentId === 1 ? 'Alejandro Ramírez García' : 'Estudiante de Prueba',
+        titulo: datos.title,
+        descripcion: datos.description,
+        aula: '4to A - Matemáticas',
+        estado: 'abierta',
+        fecha: datos.incidentDate,
+        hora: datos.incidentTime
+      };
+      this.incidencias.update(list => [nueva, ...list]);
+    }
+    this.cerrarFormulario();
   }
 }

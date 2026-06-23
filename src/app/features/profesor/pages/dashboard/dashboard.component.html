@@ -6,12 +6,12 @@
       <h1 class="main-title">Resumen de Incidencias</h1>
       <p class="main-subtitle">Gestiona y haz seguimiento de las incidencias de los estudiantes.</p>
     </div>
-    <a routerLink="/profesor/incidencias/crear" class="app-button app-button--primary btn-new-incident">
+    <button (click)="abrirFormularioCrear()" class="app-button app-button--primary btn-new-incident" type="button">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="icon-plus">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
       Nueva Incidencia
-    </a>
+    </button>
   </div>
 
   <div class="dashboard-grid">
@@ -84,7 +84,7 @@
                   </td>
                   <td class="col-actions">
                     <button type="button" class="btn-action-ghost" (click)="abrirModal(inc)">Ver</button>
-                    <button type="button" class="btn-action-ghost text-primary">Editar</button>
+                    <button type="button" class="btn-action-ghost text-primary" (click)="abrirFormularioEditar(inc.id)">Editar</button>
                   </td>
                 </tr>
               } @empty {
@@ -174,5 +174,13 @@
         </footer>
       </div>
     </div>
+  }
+
+  @if (mostrarFormModal()) {
+    <app-incidencia-form 
+      [incidenciaId]="idParaEditar()" 
+      (onClose)="cerrarFormulario()" 
+      (onSave)="guardarIncidencia($event)">
+    </app-incidencia-form>
   }
 </div>
