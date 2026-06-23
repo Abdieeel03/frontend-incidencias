@@ -1,5 +1,18 @@
 import { Routes } from '@angular/router';
 
+const loadCoordinadorHome = () =>
+  import('@features/coordinador/pages/coordinador-dashboard/coordinador-dashboard.component').then(
+    (m) => m.CoordinadorDashboardComponent
+  );
+
+const loadProfesorHome = () =>
+  import('@features/profesor/pages/profesor-home/profesor-home.component').then(
+    (m) => m.ProfesorHomeComponent
+  );
+
+const loadPadreHome = () =>
+  import('@features/padre/pages/padre-home/padre-home.component').then((m) => m.PadreHomeComponent);
+
 export const routes: Routes = [
   {
     path: '',
@@ -34,36 +47,74 @@ export const routes: Routes = [
     children: [
       {
         path: 'coordinador',
-        loadComponent: () =>
-          import('@features/coordinador/pages/coordinador-dashboard/coordinador-dashboard.component').then(
-            (m) => m.CoordinadorDashboardComponent
-          ),
+        children: [
+          {
+            path: '',
+            loadComponent: loadCoordinadorHome,
+          },
+          {
+            path: 'usuarios',
+            loadComponent: loadCoordinadorHome,
+          },
+          {
+            path: 'incidencias',
+            loadComponent: loadCoordinadorHome,
+          },
+          {
+            path: 'clases',
+            loadComponent: loadCoordinadorHome,
+          },
+          {
+            path: 'estudiantes',
+            loadComponent: loadCoordinadorHome,
+          },
+        ],
       },
       {
         path: 'profesor',
-        loadComponent: () =>
-          import('@features/profesor/pages/profesor-home/profesor-home.component').then(
-            (m) => m.ProfesorHomeComponent
-          ),
+        children: [
+          {
+            path: '',
+            loadComponent: loadProfesorHome,
+          },
+          {
+            path: 'mis-clases',
+            loadComponent: loadProfesorHome,
+          },
+          {
+            path: 'incidencias',
+            loadComponent: loadProfesorHome,
+          },
+        ],
       },
       {
         path: 'padre',
-        loadComponent: () =>
-          import('@features/padre/pages/padre-home/padre-home.component').then(
-            (m) => m.PadreHomeComponent
-          ),
+        children: [
+          {
+            path: '',
+            loadComponent: loadPadreHome,
+          },
+          {
+            path: 'mis-hijos',
+            loadComponent: loadPadreHome,
+          },
+        ],
+      },
+      {
+        path: 'settings',
+        loadComponent: loadCoordinadorHome,
       },
     ],
   },
   {
     path: '403',
     loadComponent: () =>
-      import('@shared/components/forbidden/forbidden.component').then((m) => m.ForbiddenComponent),
+      import('@app/features/forbidden/forbidden.component').then((m) => m.ForbiddenComponent),
   },
   {
     path: '404',
     loadComponent: () =>
-      import('@shared/components/not-found/not-found.component').then((m) => m.NotFoundComponent),
+      import('@app/features/not-found/not-found.component').then((m) => m.NotFoundComponent),
   },
   {
     path: '**',
