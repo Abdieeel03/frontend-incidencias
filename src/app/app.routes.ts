@@ -1,5 +1,18 @@
 import { Routes } from '@angular/router';
 
+const loadCoordinadorHome = () =>
+  import('@features/coordinador/pages/coordinador-home/coordinador-home.component').then(
+    (m) => m.CoordinadorHomeComponent
+  );
+
+const loadProfesorHome = () =>
+  import('@features/profesor/pages/profesor-home/profesor-home.component').then(
+    (m) => m.ProfesorHomeComponent
+  );
+
+const loadPadreHome = () =>
+  import('@features/padre/pages/padre-home/padre-home.component').then((m) => m.PadreHomeComponent);
+
 export const routes: Routes = [
   {
     path: '',
@@ -34,24 +47,62 @@ export const routes: Routes = [
     children: [
       {
         path: 'coordinador',
-        loadComponent: () =>
-          import('@features/coordinador/pages/coordinador-home/coordinador-home.component').then(
-            (m) => m.CoordinadorHomeComponent
-          ),
+        children: [
+          {
+            path: '',
+            loadComponent: loadCoordinadorHome,
+          },
+          {
+            path: 'usuarios',
+            loadComponent: loadCoordinadorHome,
+          },
+          {
+            path: 'incidencias',
+            loadComponent: loadCoordinadorHome,
+          },
+          {
+            path: 'clases',
+            loadComponent: loadCoordinadorHome,
+          },
+          {
+            path: 'estudiantes',
+            loadComponent: loadCoordinadorHome,
+          },
+        ],
       },
       {
         path: 'profesor',
-        loadComponent: () =>
-          import('@features/profesor/pages/profesor-home/profesor-home.component').then(
-            (m) => m.ProfesorHomeComponent
-          ),
+        children: [
+          {
+            path: '',
+            loadComponent: loadProfesorHome,
+          },
+          {
+            path: 'mis-clases',
+            loadComponent: loadProfesorHome,
+          },
+          {
+            path: 'incidencias',
+            loadComponent: loadProfesorHome,
+          },
+        ],
       },
       {
         path: 'padre',
-        loadComponent: () =>
-          import('@features/padre/pages/padre-home/padre-home.component').then(
-            (m) => m.PadreHomeComponent
-          ),
+        children: [
+          {
+            path: '',
+            loadComponent: loadPadreHome,
+          },
+          {
+            path: 'mis-hijos',
+            loadComponent: loadPadreHome,
+          },
+        ],
+      },
+      {
+        path: 'settings',
+        loadComponent: loadCoordinadorHome,
       },
     ],
   },
