@@ -6,6 +6,11 @@
   background: var(--color-background);
 }
 
+.dashboard-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
 .dashboard-mobile-header {
   position: sticky;
   top: 0;
@@ -61,7 +66,7 @@
   border-right: var(--border-subtle);
   background: var(--color-surface-container-lowest);
   box-shadow: var(--shadow-level-1);
-  padding: var(--space-md);
+  padding: 0;
   transform: translateX(-100%);
   transition: transform 180ms ease;
 }
@@ -90,7 +95,7 @@
     width: auto;
     min-height: auto;
     border-right: var(--border-subtle);
-    padding: var(--space-lg);
+    padding: 0;
     transform: none;
   }
 

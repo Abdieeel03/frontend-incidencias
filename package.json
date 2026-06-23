@@ -1,5 +1,5 @@
 {
-  "name": "frontend-incidencias",
+  "name": "rise",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,12 +7,12 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:frontend-incidencias": "node dist/frontend-incidencias/server/server.mjs",
+    "serve:ssr:rise": "node dist/rise/server/server.mjs",
     "format": "prettier --write \"src/**/*.{ts,html,css,json}\"",
     "lint": "ng lint"
   },
   "private": true,
-  "packageManager": "pnpm@11.7.0",
+  "packageManager": "pnpm@11.8.0",
   "dependencies": {
     "@angular/common": "^22.0.0",
     "@angular/compiler": "^22.0.0",

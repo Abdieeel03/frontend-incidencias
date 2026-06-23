@@ -1,53 +1,47 @@
-You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
+# Repository Instructions
 
-## TypeScript Best Practices
+## Project Facts
 
-- Use strict type checking
-- Prefer type inference when the type is obvious
-- Avoid the `any` type; use `unknown` when type is uncertain
+- Single Angular application named `rise`; source root is `src/` and routes are wired in `src/app/app.routes.ts` with lazy `loadComponent` imports.
+- Use `pnpm` only. The repo declares `packageManager: pnpm@11.8.0`, Angular CLI is configured with `packageManager: pnpm`, and `.npmrc` has `engine-strict=true` plus dependency script controls.
+- Angular is v22; do not add `standalone: true` to components/directives/pipes because standalone is already the default.
 
-## Angular Best Practices
+## Commands
 
-- Always use standalone components over NgModules
-- Must NOT set `standalone: true` inside Angular decorators. It's the default in Angular v20+.
-- Use signals for state management
-- Implement lazy loading for feature routes
-- Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
-- Use `NgOptimizedImage` for all static images.
-  - `NgOptimizedImage` does not work for inline base64 images.
+- Install: `pnpm install`
+- Dev server: `pnpm start` or `pnpm exec ng serve` on `http://localhost:4200/`.
+- Production build: `pnpm build` (`ng build`, default config is production with bundle budgets).
+- Development watch build: `pnpm watch`.
+- Lint TS and Angular templates: `pnpm lint`.
+- Format only app sources: `pnpm format` runs Prettier on `src/**/*.{ts,html,css,json}`.
+- Unit tests: `pnpm test` uses Angular's `@angular/build:unit-test` builder with Vitest and jsdom by default.
+- Focus one spec file: `pnpm exec ng test --include src/app/path/name.component.spec.ts`.
+- Focus by suite/test name: `pnpm exec ng test --filter 'NamePattern'`.
+- List discovered tests without running: `pnpm exec ng test --list-tests`.
 
-## Accessibility Requirements
+## Structure And Imports
 
-- It MUST pass all AXE checks.
-- It MUST follow all WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
+- Path aliases are defined in `tsconfig.json`: `@app/*`, `@core/*`, `@shared/*`, `@features/*`, `@env/*`, `@layouts/*`, and `@models/*`.
+- Main app bootstrap is `src/main.ts`; providers live in `src/app/app.config.ts`.
+- Auth-related state, models, and guards are under `src/app/core/auth/`; role dashboards live under `src/app/features/{coordinador,profesor,padre}/`.
+- Existing services use Angular v22 `@Service()` from `@angular/core`; follow that convention unless a failing verification shows it must change.
+- Coordinator API calls currently target relative `/api` endpoints from `src/app/features/coordinador/services/coordinador-api.service.ts`; there is no environment file in the repo.
 
-### Components
+## Style Constraints
 
-- Keep components small and focused on a single responsibility
-- Use `input()` and `output()` functions instead of decorators
-- Use `computed()` for derived state
-- Prefer inline templates for small components
-- Prefer Reactive forms instead of Template-driven ones
-- Do NOT use `ngClass`, use `class` bindings instead
-- Do NOT use `ngStyle`, use `style` bindings instead
-- When using external templates/styles, use paths relative to the component TS file.
+- ESLint enforces Angular selectors: components `app-*` in kebab-case and attribute directives `app*` in camelCase.
+- ESLint enforces `type` aliases over `interface` via `@typescript-eslint/consistent-type-definitions`.
+- Prefer the existing Angular patterns: `input()`/`output()` over decorators, signals/computed for local state, `inject()` over constructor injection, native template control flow, and no `ngClass`/`ngStyle`.
+- Use `host` metadata instead of `@HostBinding`/`@HostListener`.
+- Preserve strict TypeScript settings from `tsconfig.json` (`noImplicitOverride`, `noPropertyAccessFromIndexSignature`, `noImplicitReturns`, `isolatedModules`).
 
-## State Management
+## UI And Accessibility
 
-- Use signals for local component state
-- Use `computed()` for derived state
-- Keep state transformations pure and predictable
-- Do NOT use `mutate` on signals, use `update` or `set` instead
+- `DESIGN.md` is the source for the institutional incident-management visual language; `src/styles.css` already exposes the matching CSS variables and utility classes.
+- Keep UI in the existing Inter-based, card/table/dashboard style with the blue/orange status palette from `DESIGN.md`.
+- Angular template accessibility rules are enabled through `angular.configs.templateAccessibility`; keep focus states, labels, ARIA, and color contrast WCAG AA-safe.
 
-## Templates
+## Testing Notes
 
-- Keep templates simple and avoid complex logic
-- Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
-- Use the async pipe to handle observables
-- Do not assume globals like (`new Date()`) are available.
-
-## Services
-
-- Design services around a single responsibility
-- Use the `providedIn: 'root'` option for singleton services
-- Use the `inject()` function instead of constructor injection
+- Specs are colocated as `*.spec.ts` under `src/app/`; no e2e framework or CI workflow is configured in this repo.
+- Tests run in jsdom unless browser flags are provided to `ng test`.
