@@ -5,10 +5,6 @@ const loadCoordinadorHome = () =>
     (m) => m.CoordinadorDashboardComponent
   );
 
-const loadProfesorHome = () =>
-  import('@features/profesor/pages/profesor-home/profesor-home.component').then(
-    (m) => m.ProfesorHomeComponent
-  );
 
 const loadPadreHome = () =>
   import('@features/padre/pages/padre-home/padre-home.component').then((m) => m.PadreHomeComponent);
