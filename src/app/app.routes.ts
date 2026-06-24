@@ -5,6 +5,11 @@ const loadCoordinadorHome = () =>
     (m) => m.CoordinadorDashboardComponent
   );
 
+const loadClases = () =>
+  import('@features/coordinador/pages/clases/clases.component').then(
+    (m) => m.ClasesComponent
+  );
+
 const loadProfesorHome = () =>
   import('@features/profesor/pages/profesor-home/profesor-home.component').then(
     (m) => m.ProfesorHomeComponent
@@ -62,7 +67,7 @@ export const routes: Routes = [
           },
           {
             path: 'clases',
-            loadComponent: loadCoordinadorHome,
+            loadComponent: loadClases,
           },
           {
             path: 'estudiantes',
