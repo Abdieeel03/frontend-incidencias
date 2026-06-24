@@ -5,10 +5,6 @@ const loadCoordinadorHome = () =>
     (m) => m.CoordinadorDashboardComponent
   );
 
-const loadProfesorHome = () =>
-  import('@features/profesor/pages/profesor-home/profesor-home.component').then(
-    (m) => m.ProfesorHomeComponent
-  );
 
 const loadPadreHome = () =>
   import('@features/padre/pages/padre-home/padre-home.component').then((m) => m.PadreHomeComponent);
@@ -77,20 +73,8 @@ export const routes: Routes = [
       },
       {
         path: 'profesor',
-        children: [
-          {
-            path: '',
-            loadComponent: loadProfesorHome,
-          },
-          {
-            path: 'mis-clases',
-            loadComponent: loadProfesorHome,
-          },
-          {
-            path: 'incidencias',
-            loadComponent: loadProfesorHome,
-          },
-        ],
+        loadChildren: () =>
+          import('@features/profesor/profesor.routes').then((m) => m.routes),
       },
       {
         path: 'padre',

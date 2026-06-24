@@ -1,0 +1,180 @@
+<app-profesor-header titulo="Gestión de Incidencias"></app-profesor-header>
+
+<div class="incidencias-page">
+  
+  <header class="incidencias-header">
+    <h1 class="incidencias-title">Gestión de Incidencias</h1>
+    <p class="incidencias-subtitle">Monitorea, filtra y actualiza el estado de los reportes disciplinarios y de seguridad.</p>
+  </header>
+
+  <div class="metrics-grid">
+    <div class="app-card metric-card">
+      <span class="metric-label">TOTAL REPORTADAS (MES)</span>
+      <div class="metric-value-container">
+        <span class="metric-value">24</span>
+        <span class="metric-subtext">Octubre 2024</span>
+      </div>
+    </div>
+    <div class="app-card metric-card">
+      <span class="metric-label text-warning">PENDIENTES DE ACCIÓN</span>
+      <div class="metric-value-container">
+        <span class="metric-value text-warning">5</span>
+        <span class="metric-subtext">Requieren atención</span>
+      </div>
+    </div>
+    <div class="app-card metric-card">
+      <span class="metric-label text-success">RESUELTAS</span>
+      <div class="metric-value-container">
+        <span class="metric-value text-success">19</span>
+        <span class="metric-subtext">79% Tasa de resolución</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-card table-container">
+    
+    <div class="table-header-actions">
+      <div class="filter-chips">
+        <span class="filter-label">FILTRAR POR:</span>
+        <button class="chip" [class.chip--active]="filtroEstado() === 'todos'" (click)="setFiltro('todos')">Todos</button>
+        <button class="chip" [class.chip--active]="filtroEstado() === 'abierta'" (click)="setFiltro('abierta')">Abiertas</button>
+        <button class="chip" [class.chip--active]="filtroEstado() === 'en_proceso'" (click)="setFiltro('en_proceso')">En Proceso</button>
+        <button class="chip" [class.chip--active]="filtroEstado() === 'resuelta'" (click)="setFiltro('resuelta')">Resueltas</button>
+        <button class="chip" [class.chip--active]="filtroEstado() === 'archivada'" (click)="setFiltro('archivada')">Archivadas</button>
+      </div>
+
+      <div class="table-header-buttons">
+        <button class="app-button app-button--secondary btn-export" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon-btn">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          Exportar CSV
+        </button>
+        <button class="app-button app-button--primary btn-new-incident-list" type="button" (click)="abrirFormularioCrear()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="icon-btn">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Registrar Incidencia
+        </button>
+      </div>
+    </div>
+
+    <div class="table-search-bar">
+      <div class="search-input-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon-search">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.637 10.637Z" />
+        </svg>
+        <input 
+          type="text" 
+          placeholder="Buscar estudiantes o ID de incidencia..." 
+          class="app-input search-input" 
+          [value]="busqueda()"
+          (input)="onSearch($event)"
+          aria-label="Buscar incidencia"
+        />
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Estudiante</th>
+            <th>Título de Incidencia</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (incidencia of incidenciasFiltradas(); track incidencia.id) {
+            <tr>
+              <td class="col-code">{{ incidencia.codigo }}</td>
+              <td class="col-student">
+                <div class="student-avatar-container">
+                  <div class="student-avatar">{{ incidencia.estudiante.substring(0, 2).toUpperCase() }}</div>
+                  <span class="student-name">{{ incidencia.estudiante }}</span>
+                </div>
+              </td>
+              <td class="col-title">{{ incidencia.titulo }}</td>
+              <td class="col-status">
+                <span class="app-chip" [class]="'app-chip--' + (incidencia.estado === 'en_proceso' ? 'pending' : incidencia.estado === 'abierta' ? 'critical' : 'resolved')">
+                  {{ incidencia.estado === 'abierta' ? 'Abierta' : incidencia.estado === 'en_proceso' ? 'En Proceso' : incidencia.estado === 'resuelta' ? 'Resuelta' : 'Archivada' }}
+                </span>
+              </td>
+              <td class="col-date">{{ incidencia.fecha }}</td>
+              <td class="col-actions">
+                <button type="button" class="btn-action-ghost" (click)="abrirModal(incidencia)">Ver</button>
+                <button type="button" class="btn-action-ghost text-primary" (click)="abrirFormularioEditar(incidencia.id)">Editar</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="table-empty-state">No se encontraron incidencias que coincidan con la búsqueda.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-pagination">
+      <span class="pagination-info">Mostrando 1 a {{ incidenciasFiltradas().length }} de {{ incidenciasFiltradas().length }} registros</span>
+      <div class="pagination-buttons">
+        <button class="app-button app-button--secondary btn-pag" type="button" disabled>Anterior</button>
+        <button class="app-button app-button--secondary btn-pag" type="button" disabled>Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  @if (incidenciaSeleccionada(); as inc) {
+    <div class="modal-overlay" (click)="cerrarModal()">
+      <div class="app-card modal-card" (click)="$event.stopPropagation()">
+        <header class="modal-card__header">
+          <div class="modal-title-container">
+            <span class="modal-badge-id">{{ inc.codigo }}</span>
+            <h2 class="modal-title">{{ inc.titulo }}</h2>
+          </div>
+          <button type="button" class="btn-close" (click)="cerrarModal()" aria-label="Cerrar modal">×</button>
+        </header>
+
+        <div class="modal-card__body">
+          <div class="detail-row">
+            <span class="detail-label">Estudiante</span>
+            <span class="detail-value">{{ inc.estudiante }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Aula / Clase</span>
+            <span class="detail-value">{{ inc.aula }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Fecha y Hora</span>
+            <span class="detail-value">{{ inc.fecha }} - {{ inc.hora }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Estado</span>
+            <span class="app-chip" [class]="'app-chip--' + (inc.estado === 'en_proceso' ? 'pending' : inc.estado === 'abierta' ? 'critical' : 'resolved')">
+              {{ inc.estado === 'abierta' ? 'Abierta' : inc.estado === 'en_proceso' ? 'En Proceso' : inc.estado === 'resuelta' ? 'Resuelta' : 'Archivada' }}
+            </span>
+          </div>
+          <div class="detail-description-box">
+            <span class="detail-label block">Descripción Detallada</span>
+            <p class="detail-description-text">{{ inc.descripcion }}</p>
+          </div>
+        </div>
+
+        <footer class="modal-card__footer">
+          <button class="app-button app-button--secondary" type="button" (click)="cerrarModal()">Cerrar</button>
+        </footer>
+      </div>
+    </div>
+  }
+
+  @if (mostrarFormModal()) {
+    <app-incidencia-form 
+      [incidenciaId]="idParaEditar()" 
+      (onClose)="cerrarFormulario()" 
+      (onSave)="guardarIncidencia($event)">
+    </app-incidencia-form>
+  }
+</div>
