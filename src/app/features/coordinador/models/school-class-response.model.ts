@@ -1,13 +1,26 @@
-export interface SchoolClassStudent {
-  id: number;
-  fullName: string;
-  studentCode: string;
-}
+import { StudentSummary } from "./student-response.model";
 
-export interface SchoolClassResponse {
+export type SchoolClassResponse = {
   id: number;
   name: string;
+  teacherId?: number;
+  teacherName?: string;
+  students: StudentSummary[];
+  isDeleted?: boolean;
+}
+
+export type CreateClassRequest = {
+  name: string;
   teacherId: number;
-  teacherName: string;
-  students?: SchoolClassStudent[];
+  studentIds?: number[];
+}
+
+export type UpdateSchoolClassRequest = {
+  name?: string;
+  teacherId: number;
+  studentIds?: number[];
+}
+
+export type AddStudentsRequest = {
+  studentIds: number[];
 }

@@ -18,6 +18,11 @@ const loadProfesorHome = () =>
 const loadPadreHome = () =>
   import('@features/padre/pages/padre-home/padre-home.component').then((m) => m.PadreHomeComponent);
 
+const loadPadreChildrenIncidents = () =>
+  import('@features/padre/pages/padre-children-incidents/padre-children-incidents.component').then(
+    (m) => m.PadreChildrenIncidentsComponent
+  );
+
 export const routes: Routes = [
   {
     path: '',
@@ -101,7 +106,7 @@ export const routes: Routes = [
           },
           {
             path: 'mis-hijos',
-            loadComponent: loadPadreHome,
+            loadComponent: loadPadreChildrenIncidents,
           },
         ],
       },
