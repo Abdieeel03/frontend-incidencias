@@ -5,15 +5,6 @@ const loadCoordinadorHome = () =>
     (m) => m.CoordinadorDashboardComponent
   );
 
-
-const loadPadreHome = () =>
-  import('@features/padre/pages/padre-home/padre-home.component').then((m) => m.PadreHomeComponent);
-
-const loadPadreChildrenIncidents = () =>
-  import('@features/padre/pages/padre-children-incidents/padre-children-incidents.component').then(
-    (m) => m.PadreChildrenIncidentsComponent
-  );
-
 export const routes: Routes = [
   {
     path: '',
@@ -48,46 +39,16 @@ export const routes: Routes = [
     children: [
       {
         path: 'coordinador',
-        children: [
-          {
-            path: '',
-            loadComponent: loadCoordinadorHome,
-          },
-          {
-            path: 'usuarios',
-            loadComponent: loadCoordinadorHome,
-          },
-          {
-            path: 'incidencias',
-            loadComponent: loadCoordinadorHome,
-          },
-          {
-            path: 'clases',
-            loadComponent: loadCoordinadorHome,
-          },
-          {
-            path: 'estudiantes',
-            loadComponent: loadCoordinadorHome,
-          },
-        ],
+        loadChildren: () =>
+          import('@features/coordinador/coordinador.routes').then((m) => m.routes),
       },
       {
         path: 'profesor',
-        loadChildren: () =>
-          import('@features/profesor/profesor.routes').then((m) => m.routes),
+        loadChildren: () => import('@features/profesor/profesor.routes').then((m) => m.routes),
       },
       {
         path: 'padre',
-        children: [
-          {
-            path: '',
-            loadComponent: loadPadreHome,
-          },
-          {
-            path: 'mis-hijos',
-            loadComponent: loadPadreChildrenIncidents,
-          },
-        ],
+        loadChildren: () => import('@features/padre/padre.routes').then((m) => m.routes),
       },
       {
         path: 'settings',

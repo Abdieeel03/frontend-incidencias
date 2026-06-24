@@ -1,8 +1,7 @@
 import { Component, signal, computed } from '@angular/core';
-import { ProfesorHeaderComponent } from '../../components/profesor-header/profesor-header.component';
-import { IncidenciaFormComponent } from '../incidencia-form/incidencia-form.component';
+import { IncidenciaFormComponent, type IncidenciaFormValue } from '../incidencia-form/incidencia-form.component';
 
-interface IncidenciaMock {
+type IncidenciaMock = {
   id: number;
   codigo: string;
   estudiante: string;
@@ -13,11 +12,11 @@ interface IncidenciaMock {
   estado: 'abierta' | 'en_proceso' | 'resuelta' | 'archivada';
   fecha: string;
   hora: string;
-}
+};
 
 @Component({
   selector: 'app-incidencias',
-  imports: [ProfesorHeaderComponent, IncidenciaFormComponent],
+  imports: [IncidenciaFormComponent],
   templateUrl: './incidencias.component.html',
   styleUrl: './incidencias.component.css'
 })
@@ -108,6 +107,12 @@ export class IncidenciasComponent {
     this.incidenciaSeleccionada.set(null);
   }
 
+  closeModalFromOverlay(event: Event): void {
+    if (event.target === event.currentTarget) {
+      this.cerrarModal();
+    }
+  }
+
   abrirFormularioCrear(): void {
     this.idParaEditar.set(null);
     this.mostrarFormModal.set(true);
@@ -123,7 +128,7 @@ export class IncidenciasComponent {
     this.idParaEditar.set(null);
   }
 
-  guardarIncidencia(datos: any): void {
+  guardarIncidencia(datos: IncidenciaFormValue): void {
     if (this.idParaEditar() !== null) {
       alert('¡Incidencia actualizada correctamente (Mock)!');
     } else {
@@ -132,12 +137,12 @@ export class IncidenciasComponent {
         id: this.incidencias().length + 1,
         codigo: `#INC-0${this.incidencias().length + 80}`,
         estudiante: datos.studentId === 1 ? 'Alejandro Ramírez García' : 'Estudiante de Prueba',
-        titulo: datos.title,
-        descripcion: datos.description,
+        titulo: datos.title ?? '',
+        descripcion: datos.description ?? '',
         aula: '4to A - Matemáticas',
         estado: 'abierta',
-        fecha: datos.incidentDate,
-        hora: datos.incidentTime
+        fecha: datos.incidentDate ?? '',
+        hora: datos.incidentTime ?? ''
       };
       this.incidencias.update(list => [nueva, ...list]);
     }

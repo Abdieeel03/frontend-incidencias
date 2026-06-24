@@ -177,8 +177,8 @@
 
   <!-- Modal: Registro / Edición -->
   @if (isFormOpen()) {
-    <div class="modal-overlay" (click)="closeAllModals()">
-      <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+    <div class="modal-overlay" role="button" tabindex="0" aria-label="Cerrar modal" (click)="closeFromOverlay($event)" (keydown.enter)="closeFromOverlay($event)" (keydown.space)="closeFromOverlay($event)">
+      <div class="modal-card" role="dialog" aria-modal="true">
         <div class="modal-header">
           <h2>{{ studentToEdit() ? 'Editar Estudiante' : 'Registrar Estudiante' }}</h2>
           <button class="close-btn" (click)="isFormOpen.set(false)" aria-label="Cerrar modal">
@@ -280,8 +280,8 @@
 
   <!-- Modal: Ficha del Estudiante -->
   @if (isDetailOpen()) {
-    <div class="modal-overlay" (click)="closeAllModals()">
-      <div class="modal-card modal-card--lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+    <div class="modal-overlay" role="button" tabindex="0" aria-label="Cerrar modal" (click)="closeFromOverlay($event)" (keydown.enter)="closeFromOverlay($event)" (keydown.space)="closeFromOverlay($event)">
+      <div class="modal-card modal-card--lg" role="dialog" aria-modal="true">
         <div class="modal-header">
           <h2>Ficha de Matrícula del Alumno</h2>
           <button class="close-btn" (click)="isDetailOpen.set(false)" aria-label="Cerrar modal">
@@ -385,8 +385,8 @@
 
   <!-- Modal: Confirmar Deshabilitación -->
   @if (isDeleteOpen()) {
-    <div class="modal-overlay" (click)="closeAllModals()">
-      <div class="modal-card modal-card--sm" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+    <div class="modal-overlay" role="button" tabindex="0" aria-label="Cerrar modal" (click)="closeFromOverlay($event)" (keydown.enter)="closeFromOverlay($event)" (keydown.space)="closeFromOverlay($event)">
+      <div class="modal-card modal-card--sm" role="dialog" aria-modal="true">
         <div class="modal-header">
           <h2>Retirar Estudiante</h2>
           <button class="close-btn" (click)="isDeleteOpen.set(false)" aria-label="Cerrar modal">
@@ -427,8 +427,8 @@
 
   <!-- Modal: Confirmar Restauración -->
   @if (isRestoreOpen()) {
-    <div class="modal-overlay" (click)="closeAllModals()">
-      <div class="modal-card modal-card--sm" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+    <div class="modal-overlay" role="button" tabindex="0" aria-label="Cerrar modal" (click)="closeFromOverlay($event)" (keydown.enter)="closeFromOverlay($event)" (keydown.space)="closeFromOverlay($event)">
+      <div class="modal-card modal-card--sm" role="dialog" aria-modal="true">
         <div class="modal-header">
           <h2>Restaurar Matrícula</h2>
           <button class="close-btn" (click)="isRestoreOpen.set(false)" aria-label="Cerrar modal">

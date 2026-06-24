@@ -1,5 +1,5 @@
-<div class="modal-overlay" (click)="cancelar()">
-  <div class="app-card modal-card" (click)="$event.stopPropagation()">
+<div class="modal-overlay" role="button" tabindex="0" aria-label="Cerrar modal" (click)="closeFromOverlay($event)" (keydown.enter)="closeFromOverlay($event)" (keydown.space)="closeFromOverlay($event)">
+  <div class="app-card modal-card" role="dialog" aria-modal="true">
     
     <header class="modal-card__header">
       <h2 class="modal-title">{{ isEditMode() ? 'Editar Incidencia' : 'Crear Nueva Incidencia' }}</h2>

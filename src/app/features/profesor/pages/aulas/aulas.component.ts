@@ -1,7 +1,6 @@
 import { Component, signal } from '@angular/core';
-import { ProfesorHeaderComponent } from '../../components/profesor-header/profesor-header.component';
 
-interface Aula {
+type Aula = {
   id: number;
   nombre: string;
   materia: string;
@@ -9,11 +8,11 @@ interface Aula {
   alumnosCount: number;
   criticasCount: number;
   pendientesCount: number;
-}
+};
 
 @Component({
   selector: 'app-aulas',
-  imports: [ProfesorHeaderComponent],
+  imports: [],
   templateUrl: './aulas.component.html',
   styleUrl: './aulas.component.css',
 })

@@ -1,5 +1,3 @@
-<app-profesor-header titulo="Resumen de Incidencias"></app-profesor-header>
-
 <div class="dashboard-page-content">
   <div class="page-title-bar">
     <div class="title-container">
@@ -134,8 +132,8 @@
   </div>
 
   @if (incidenciaSeleccionada(); as inc) {
-    <div class="modal-overlay" (click)="cerrarModal()">
-      <div class="app-card modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-overlay" role="button" tabindex="0" aria-label="Cerrar modal" (click)="closeModalFromOverlay($event)" (keydown.enter)="closeModalFromOverlay($event)" (keydown.space)="closeModalFromOverlay($event)">
+      <div class="app-card modal-card" role="dialog" aria-modal="true">
         <header class="modal-card__header">
           <div class="modal-title-container">
             <span class="modal-badge-id">{{ inc.codigo }}</span>
@@ -179,8 +177,8 @@
   @if (mostrarFormModal()) {
     <app-incidencia-form 
       [incidenciaId]="idParaEditar()" 
-      (onClose)="cerrarFormulario()" 
-      (onSave)="guardarIncidencia($event)">
+      (closed)="cerrarFormulario()" 
+      (saved)="guardarIncidencia($event)">
     </app-incidencia-form>
   }
 </div>

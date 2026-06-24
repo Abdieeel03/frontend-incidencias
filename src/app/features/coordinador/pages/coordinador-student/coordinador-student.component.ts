@@ -17,7 +17,7 @@ export type StudentDetail = Student & {
   parentEmail: string;
   parentPhone: string;
   className: string;
-  incidents: Array<IncidentResponse & { status: 'NO_LEIDA' | 'LEIDA'}>;
+  incidents: (IncidentResponse & { status: 'NO_LEIDA' | 'LEIDA' })[];
 };
 
 @Component({
@@ -148,6 +148,12 @@ export class CoordinadorStudentComponent {
     this.isDetailOpen.set(false);
     this.isDeleteOpen.set(false);
     this.isRestoreOpen.set(false);
+  }
+
+  protected closeFromOverlay(event: Event): void {
+    if (event.target === event.currentTarget) {
+      this.closeAllModals();
+    }
   }
 
   protected handleSave(): void {

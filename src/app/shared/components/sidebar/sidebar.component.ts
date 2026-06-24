@@ -28,7 +28,7 @@ const SECTION_NAVIGATION: Record<DashboardSection, readonly SidebarItem[]> = {
   ],
   profesor: [
     { label: 'Dashboard', icon: 'dashboard', path: '/profesor' },
-    { label: 'Mis clases', icon: 'local_library', path: '/profesor/mis-clases' },
+    { label: 'Mis clases', icon: 'local_library', path: '/profesor/aulas' },
     { label: 'Incidencias', icon: 'report_problem', path: '/profesor/incidencias' },
   ],
   padre: [

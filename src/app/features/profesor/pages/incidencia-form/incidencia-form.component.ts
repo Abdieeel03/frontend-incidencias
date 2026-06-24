@@ -1,17 +1,26 @@
 import { Component, inject, signal, computed, OnInit, input, output } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-interface AlumnoMock {
+type AlumnoMock = {
   id: number;
   nombre: string;
   codigo: string;
   dni: string;
-}
+};
 
-interface ClaseMock {
+type ClaseMock = {
   id: number;
   nombre: string;
-}
+};
+
+export type IncidenciaFormValue = {
+  title?: string | null;
+  studentId?: number | null;
+  classId?: number | string | null;
+  incidentDate?: string | null;
+  incidentTime?: string | null;
+  description?: string | null;
+};
 
 @Component({
   selector: 'app-incidencia-form',
@@ -23,8 +32,8 @@ export class IncidenciaFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
 
   incidenciaId = input<number | null>(null);
-  onClose = output<void>();
-  onSave = output<any>();
+  closed = output<void>();
+  saved = output<IncidenciaFormValue>();
 
   form!: FormGroup;
   isEditMode = computed(() => this.incidenciaId() !== null);
@@ -68,7 +77,7 @@ export class IncidenciaFormComponent implements OnInit {
     
     const id = this.incidenciaId();
     if (id !== null) {
-      this.cargarDatosEdicion(id);
+      this.cargarDatosEdicion();
     }
   }
 
@@ -87,7 +96,7 @@ export class IncidenciaFormComponent implements OnInit {
     });
   }
 
-  private cargarDatosEdicion(id: number): void {
+  private cargarDatosEdicion(): void {
     const alumnoMock = this.alumnos()[0];
     this.seleccionarAlumno(alumnoMock);
 
@@ -119,7 +128,13 @@ export class IncidenciaFormComponent implements OnInit {
   }
 
   cancelar(): void {
-    this.onClose.emit();
+    this.closed.emit();
+  }
+
+  closeFromOverlay(event: Event): void {
+    if (event.target === event.currentTarget) {
+      this.cancelar();
+    }
   }
 
   onSubmit(): void {
@@ -128,7 +143,7 @@ export class IncidenciaFormComponent implements OnInit {
       return;
     }
 
-    this.onSave.emit(this.form.value);
-    this.onClose.emit();
+    this.saved.emit(this.form.value as IncidenciaFormValue);
+    this.closed.emit();
   }
 }

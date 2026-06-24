@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  padding: var(--space-page-mobile);
 }
 
 .page-title-bar {
@@ -433,6 +434,10 @@
 }
 
 @media (min-width: 768px) {
+  .dashboard-page-content {
+    padding: var(--space-page-desktop);
+  }
+
   .page-title-bar {
     flex-direction: row;
     align-items: center;
