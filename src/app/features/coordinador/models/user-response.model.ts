@@ -1,4 +1,4 @@
-import { UserRole } from '../../../core/auth/models/user-role.model';
+import { UserRole } from  '@core/auth/models/user-role.model';
 
 export type UserResponse = {
   id: number;
