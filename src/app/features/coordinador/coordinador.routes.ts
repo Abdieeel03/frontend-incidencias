@@ -9,6 +9,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'usuarios',
+    loadComponent: () =>
+      import('./pages/coordinador-user/coordinador-user.component').then(
+        (m) => m.CoordinadorUserComponent
+      ),
+  },
+  {
+    path: 'clases',
+    loadComponent: () =>
+      import('./pages/coordinador-class/coordinador-class.component').then(
+        (m) => m.CoordinadorClassComponent
+      ),
+  },
+  {
     path: 'estudiantes',
     loadComponent: () =>
       import('./pages/coordinador-student/coordinador-student.component').then(

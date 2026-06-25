@@ -1,0 +1,63 @@
+<div class="container">
+    <div class="main-header">
+        <div class="text-header">
+            <h1>Gestión de Profesores y Padres</h1>
+        </div>
+    </div>
+    <div class="toolbar-card">
+        <div class="search-bar">
+            <div class="search-box">
+                <input type="text" placeholder="Buscar por nombre, usuario, correo o DNI...">
+            </div>
+            <div class="action-group">
+                <div class="select-wrapper">
+                    <select class="select-filter" name="" id="">
+                        <option value="">Todos los roles</option>
+                        <option value="">PADRE</option>
+                        <option value="">PROFESOR</option>
+                    </select>
+                </div>
+                <button class="btn-primary"> + Nuevo Usuario</button>
+            </div>
+        </div>
+        <div class="active-delete">
+            <label class="switch" for="">
+                <input type="checkbox">
+                <span>slider</span>
+            </label>
+            <span class="active-label">Mostrar usuarios eliminados</span>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nombre Completo</th>
+                    <th>Usuario</th>
+                    <th>Correo Electrónico</th>
+                    <th>DNI</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Padre 01</strong></td>
+                    <td class="text-mono">P70000001</td>
+                    <td>padre01@incidencias.local</td>
+                    <td>70000001</td>
+                    <td><span class="badge-role badge-role--padre">PADRE</span></td>
+                    <td><span class="status-active">ACTIVO</span></td>
+                    <td>
+                        <div class="actions-group">
+                            <button class="btn-action" title="Editar">Editar</button>
+                            <button class="btn-action btn-action--delete" title="Eliminar">Eliminar</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
