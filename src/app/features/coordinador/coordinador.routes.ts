@@ -15,4 +15,11 @@ export const routes: Routes = [
         (m) => m.CoordinadorStudentComponent
       ),
   },
+  {
+    path: 'incidencias',
+    loadComponent: () =>
+      import('./pages/coordinador-incident/coordinador-incident.component').then(
+        (m) => m.CoordinadorIncidentComponent
+      ),
+  },
 ];
