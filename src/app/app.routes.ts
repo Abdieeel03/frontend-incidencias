@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 
-const loadCoordinadorHome = () =>
-  import('@features/coordinador/pages/coordinador-dashboard/coordinador-dashboard.component').then(
-    (m) => m.CoordinadorDashboardComponent
+const loadProfileSettings = () =>
+  import('@features/settings/pages/profile-settings/profile-settings.component').then(
+    (m) => m.ProfileSettingsComponent
   );
 
 export const routes: Routes = [
@@ -52,7 +52,7 @@ export const routes: Routes = [
       },
       {
         path: 'settings',
-        loadComponent: loadCoordinadorHome,
+        loadComponent: loadProfileSettings,
       },
     ],
   },
