@@ -17,15 +17,20 @@
                         <option value="">PROFESOR</option>
                     </select>
                 </div>
-                <button class="btn-primary"> + Nuevo Usuario</button>
+                <button class="btn-primary" (click)="openCreateModal()">
+                    + Nuevo Usuario
+                </button>
             </div>
         </div>
-        <div class="active-delete">
-            <label class="switch" for="">
-                <input type="checkbox">
-                <span>slider</span>
+        <!-- Toggle para Soft Delete -->
+        <div class="toggle-container">
+            <label class="switch-label">
+                <div class="switch">
+                    <input type="checkbox" [checked]="showDeleted()" (change)="toggleShowDeleted($event)" />
+                    <span class="slider"></span>
+                </div>
+                <span class="toggle-text">Mostrar Usuarios Eliminados</span>
             </label>
-            <span class="active-label">Mostrar usuarios eliminados</span>
         </div>
     </div>
 
@@ -43,21 +48,97 @@
                 </tr>
             </thead>
             <tbody>
+                @if(filteredUsers().length === 0){
                 <tr>
-                    <td><strong>Padre 01</strong></td>
-                    <td class="text-mono">P70000001</td>
-                    <td>padre01@incidencias.local</td>
-                    <td>70000001</td>
-                    <td><span class="badge-role badge-role--padre">PADRE</span></td>
-                    <td><span class="status-active">ACTIVO</span></td>
+                    <td colspan="7" class="empty-row">No se encontraron usuarios.</td>
+                </tr>
+                } @else {
+                @for(user of filteredUsers(); track user.id){
+                <tr>
+                    <td>
+                        <strong>{{ user.name }}</strong>
+                    </td>
+                    <td class="text-mono">
+                        {{ user.username }}
+                    </td>
+                    <td>
+                        {{ user.email }}
+                    </td>
+                    <td>
+                        {{ user.dni }}
+                    </td>
+                    <td>
+                        @if(user.role === 'PADRE'){
+                        <span class="badge-role badge-role--padre">PADRE</span>
+                        } @else {
+                        <span class="badge-role badge-role--profesor">PROFESOR</span>
+                        }
+                    </td>
+                    <td>
+                        @if(user.isDeleted){
+                        <span class="status-deleted">ELIMINADO</span>
+                        } @else {
+                        <span class="status-active">ACTIVO</span>
+                        }
+                    </td>
                     <td>
                         <div class="actions-group">
                             <button class="btn-action" title="Editar">Editar</button>
+                            @if(!user.isDeleted){
                             <button class="btn-action btn-action--delete" title="Eliminar">Eliminar</button>
+                            } @else {
+                            <button class="btn-action" title="Restaurar">Restaurar</button>
+                            }
                         </div>
                     </td>
                 </tr>
+                }
+                }
             </tbody>
         </table>
     </div>
+    @if(isUserModalOpen()){
+    <div class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Nuevo Usuario</h2>
+                <button type="button" class="close-btn" (click)="isUserModalOpen.set(false)">X</button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+                    <div class="form-group">
+                        <label for="fullName">Nombre Completo</label>
+                        <input id="fullName" type="text" formControlName="fullName">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico</label>
+                        <input id="email" type="email" formControlName="email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dni">DNI</label>
+                        <input id="dni" type="text" maxlength="8" formControlName="dni">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input id="password" type="password" formControlName="password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Rol</label>
+                        <select id="role" formControlName="role">
+                            <option value="PADRE">PADRE</option>
+                            <option value="PROFESOR">PROFESOR</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" (click)="isUserModalOpen.set(false)">Cancelar</button>
+                        <button type="submit">Guardar Usuario</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    }
 </div>
