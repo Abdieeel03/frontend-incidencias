@@ -80,7 +80,7 @@
             >
               <option value="" disabled selected>Seleccione...</option>
               @for (clase of clases(); track clase.id) {
-                <option [value]="clase.id">{{ clase.nombre }}</option>
+                <option [value]="clase.id">{{ clase.name }}</option>
               }
             </select>
             @if (form.get('classId')?.touched && form.get('classId')?.invalid) {

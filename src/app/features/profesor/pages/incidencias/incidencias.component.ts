@@ -1,94 +1,67 @@
-import { Component, signal, computed } from '@angular/core';
-import { IncidenciaFormComponent, type IncidenciaFormValue } from '../incidencia-form/incidencia-form.component';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
-type IncidenciaMock = {
-  id: number;
-  codigo: string;
-  estudiante: string;
-  avatarUrl?: string;
-  titulo: string;
-  descripcion: string;
-  aula: string;
-  estado: 'abierta' | 'en_proceso' | 'resuelta' | 'archivada';
-  fecha: string;
-  hora: string;
-};
+import { ProfesorApiService } from '@features/profesor/services/profesor-api.service';
+import { IncidentResponse } from '@core/auth/models/incident-response.model';
+import { IncidenciaFormComponent, type IncidenciaFormValue } from '../incidencia-form/incidencia-form.component';
 
 @Component({
   selector: 'app-incidencias',
-  imports: [IncidenciaFormComponent],
+  imports: [IncidenciaFormComponent, DecimalPipe],
   templateUrl: './incidencias.component.html',
   styleUrl: './incidencias.component.css'
 })
-export class IncidenciasComponent {
-  incidencias = signal<IncidenciaMock[]>([
-    {
-      id: 1,
-      codigo: '#INC-081',
-      estudiante: 'Ana Martínez',
-      titulo: 'Interrupción reiterada',
-      descripcion: 'El estudiante interrumpió de manera reiterada la clase de matemáticas levantándose de su asiento sin autorización.',
-      aula: '4to A - Matemáticas',
-      estado: 'abierta',
-      fecha: '15 Oct 2024',
-      hora: '10:30 AM'
-    },
-    {
-      id: 2,
-      codigo: '#INC-080',
-      estudiante: 'Carlos López',
-      titulo: 'Daño a propiedad',
-      descripcion: 'Rayó la carpeta del salón con un lapicero durante las horas de Tutoría.',
-      aula: '4to A - Tutoría',
-      estado: 'en_proceso',
-      fecha: '14 Oct 2024',
-      hora: '11:15 AM'
-    },
-    {
-      id: 3,
-      codigo: '#INC-078',
-      estudiante: 'Sofía Ramírez',
-      titulo: 'Falta Disciplinaria',
-      descripcion: 'Llegó con 20 minutos de tardanza y no justificó su ingreso a la clase de inglés.',
-      aula: '5to B - Inglés',
-      estado: 'resuelta',
-      fecha: '12 Oct 2024',
-      hora: '08:45 AM'
-    },
-    {
-      id: 4,
-      codigo: '#INC-077',
-      estudiante: 'Miguel Torres',
-      titulo: 'Incumplimiento de Tarea',
-      descripcion: 'No presentó el proyecto final del curso a pesar de la prórroga otorgada de 2 días.',
-      aula: '6to A - Ciencias',
-      estado: 'archivada',
-      fecha: '10 Oct 2024',
-      hora: '09:00 AM'
-    }
-  ]);
+export class IncidenciasComponent implements OnInit {
+  private readonly profesorApiService = inject(ProfesorApiService);
+  private readonly route = inject(ActivatedRoute);
 
+  incidencias = signal<IncidentResponse[]>([]);
   filtroEstado = signal<string>('todos');
   busqueda = signal<string>('');
   
-  incidenciaSeleccionada = signal<IncidenciaMock | null>(null);
+  incidenciaSeleccionada = signal<IncidentResponse | null>(null);
   mostrarFormModal = signal<boolean>(false);
   idParaEditar = signal<number | null>(null);
+
+  readonly openCount = computed(() => this.incidencias().filter(i => i.status === 'NO_LEIDA').length);
+  readonly resolvedCount = computed(() => this.incidencias().filter(i => i.status === 'LEIDA').length);
 
   incidenciasFiltradas = computed(() => {
     const query = this.busqueda().toLowerCase().trim();
     const estado = this.filtroEstado();
     
     return this.incidencias().filter(inc => {
-      const coincideEstado = estado === 'todos' || inc.estado === estado;
+      const coincideEstado = estado === 'todos' || inc.status === estado;
       const coincideBusqueda = !query || 
-        inc.estudiante.toLowerCase().includes(query) || 
-        inc.titulo.toLowerCase().includes(query) ||
-        inc.codigo.toLowerCase().includes(query);
+        inc.studentName.toLowerCase().includes(query) || 
+        inc.title.toLowerCase().includes(query) ||
+        inc.id.toString().includes(query);
         
       return coincideEstado && coincideBusqueda;
     });
   });
+
+  ngOnInit(): void {
+    this.loadIncidents();
+    
+    this.route.queryParams.subscribe(params => {
+      if (params['action'] === 'new') {
+        this.abrirFormularioCrear();
+      }
+    });
+  }
+
+  loadIncidents(): void {
+    this.profesorApiService.getMyIncidents().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.incidencias.set(res.data);
+        }
+      },
+      error: (err) => console.error('Error loading incidents:', err)
+    });
+  }
 
   setFiltro(estado: string): void {
     this.filtroEstado.set(estado);
@@ -99,7 +72,7 @@ export class IncidenciasComponent {
     this.busqueda.set(input.value);
   }
 
-  abrirModal(incidencia: IncidenciaMock): void {
+  abrirModal(incidencia: IncidentResponse): void {
     this.incidenciaSeleccionada.set(incidencia);
   }
 
@@ -129,23 +102,33 @@ export class IncidenciasComponent {
   }
 
   guardarIncidencia(datos: IncidenciaFormValue): void {
-    if (this.idParaEditar() !== null) {
-      alert('¡Incidencia actualizada correctamente (Mock)!');
+    const id = this.idParaEditar();
+    if (id !== null) {
+      this.profesorApiService.updateIncident(id, datos).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.loadIncidents();
+            this.cerrarFormulario();
+          }
+        },
+        error: (err) => {
+          console.error('Error updating incident:', err);
+          alert(err.error?.message || 'Error al actualizar la incidencia.');
+        }
+      });
     } else {
-      alert('¡Incidencia registrada con éxito (Mock)!');
-      const nueva: IncidenciaMock = {
-        id: this.incidencias().length + 1,
-        codigo: `#INC-0${this.incidencias().length + 80}`,
-        estudiante: datos.studentId === 1 ? 'Alejandro Ramírez García' : 'Estudiante de Prueba',
-        titulo: datos.title ?? '',
-        descripcion: datos.description ?? '',
-        aula: '4to A - Matemáticas',
-        estado: 'abierta',
-        fecha: datos.incidentDate ?? '',
-        hora: datos.incidentTime ?? ''
-      };
-      this.incidencias.update(list => [nueva, ...list]);
+      this.profesorApiService.createIncident(datos).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.loadIncidents();
+            this.cerrarFormulario();
+          }
+        },
+        error: (err) => {
+          console.error('Error creating incident:', err);
+          alert(err.error?.message || 'Error al crear la incidencia.');
+        }
+      });
     }
-    this.cerrarFormulario();
   }
 }

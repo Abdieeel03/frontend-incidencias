@@ -1,25 +1,22 @@
 import { Component, inject, signal, computed, OnInit, input, output } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
-type AlumnoMock = {
+import { ProfesorApiService } from '@features/profesor/services/profesor-api.service';
+import { SchoolClassResponse } from '@core/auth/models/school-class-response.model';
+
+type AlumnoModel = {
   id: number;
   nombre: string;
   codigo: string;
   dni: string;
 };
 
-type ClaseMock = {
-  id: number;
-  nombre: string;
-};
-
 export type IncidenciaFormValue = {
-  title?: string | null;
-  studentId?: number | null;
-  classId?: number | string | null;
-  incidentDate?: string | null;
-  incidentTime?: string | null;
-  description?: string | null;
+  title: string;
+  studentId: number;
+  classId: number;
+  description: string;
 };
 
 @Component({
@@ -30,6 +27,8 @@ export type IncidenciaFormValue = {
 })
 export class IncidenciaFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly profesorApiService = inject(ProfesorApiService);
+  private readonly route = inject(ActivatedRoute);
 
   incidenciaId = input<number | null>(null);
   closed = output<void>();
@@ -38,28 +37,16 @@ export class IncidenciaFormComponent implements OnInit {
   form!: FormGroup;
   isEditMode = computed(() => this.incidenciaId() !== null);
 
-  clases = signal<ClaseMock[]>([
-    { id: 1, nombre: '4to A - Matemáticas' },
-    { id: 2, nombre: '4to A - Tutoría' },
-    { id: 3, nombre: '5to B - Matemáticas' },
-    { id: 4, nombre: '6to A - Ciencias' }
-  ]);
-
-  alumnos = signal<AlumnoMock[]>([
-    { id: 1, nombre: 'Alejandro Ramírez García', codigo: 'EST-001', dni: '72345671' },
-    { id: 2, nombre: 'Valentina Martínez López', codigo: 'EST-002', dni: '72345672' },
-    { id: 3, nombre: 'Sebastián Fernández Quispe', codigo: 'EST-003', dni: '72345673' },
-    { id: 4, nombre: 'Camila Espinoza Torres', codigo: 'EST-004', dni: '72345674' },
-    { id: 5, nombre: 'Mateo Gutiérrez Flores', codigo: 'EST-005', dni: '72345675' }
-  ]);
+  clases = signal<SchoolClassResponse[]>([]);
+  alumnos = signal<AlumnoModel[]>([]);
 
   busquedaAlumno = signal<string>('');
   mostrarSugerencias = signal<boolean>(false);
-  alumnoSeleccionado = signal<AlumnoMock | null>(null);
+  alumnoSeleccionado = signal<AlumnoModel | null>(null);
 
   alumnosFiltrados = computed(() => {
     const query = this.busquedaAlumno().toLowerCase().trim();
-    if (query.length < 2) return [];
+    if (query.length < 2) return this.alumnos(); // Show all students if query is short, since user wants combobox behavior
     return this.alumnos().filter(a => 
       a.nombre.toLowerCase().includes(query) ||
       a.codigo.toLowerCase().includes(query) ||
@@ -74,11 +61,37 @@ export class IncidenciaFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    
-    const id = this.incidenciaId();
-    if (id !== null) {
-      this.cargarDatosEdicion();
-    }
+    this.loadClasses();
+
+    // Watch class selection changes to load matching students
+    this.form.get('classId')?.valueChanges.subscribe(classId => {
+      if (classId) {
+        this.loadStudentsForClass(Number(classId));
+      } else {
+        this.alumnos.set([]);
+        this.alumnoSeleccionado.set(null);
+        this.form.patchValue({ studentId: null });
+        this.busquedaAlumno.set('');
+      }
+    });
+
+    // Check for query parameters to prepopulate the form
+    this.route.queryParams.subscribe(params => {
+      if (params['classId']) {
+        const classId = Number(params['classId']);
+        this.form.patchValue({ classId });
+        
+        // After classes are loaded, it will load students. We need to select the student if studentDni is present.
+        this.loadStudentsForClass(classId, () => {
+          if (params['studentDni']) {
+            const student = this.alumnos().find(a => a.dni === params['studentDni']);
+            if (student) {
+              this.seleccionarAlumno(student);
+            }
+          }
+        });
+      }
+    });
   }
 
   private initForm(): void {
@@ -96,16 +109,63 @@ export class IncidenciaFormComponent implements OnInit {
     });
   }
 
-  private cargarDatosEdicion(): void {
-    const alumnoMock = this.alumnos()[0];
-    this.seleccionarAlumno(alumnoMock);
+  private loadClasses(): void {
+    this.profesorApiService.getMyClasses().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.clases.set(res.data);
+          
+          // If editing, load incident details after classes list is loaded
+          const id = this.incidenciaId();
+          if (id !== null) {
+            this.cargarDatosEdicion(id);
+          }
+        }
+      },
+      error: (err) => console.error('Error loading teacher classes:', err)
+    });
+  }
 
-    this.form.patchValue({
-      title: 'Interrupción reiterada en clase',
-      classId: 1,
-      incidentDate: '2026-06-22',
-      incidentTime: '10:30',
-      description: 'El estudiante interrumpió de manera reiterada la clase de matemáticas levantándose de su asiento sin autorización.'
+  private loadStudentsForClass(classId: number, onLoaded?: () => void): void {
+    this.profesorApiService.getClassStudents(classId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          const mapped = res.data.map(s => ({
+            id: s.id,
+            nombre: `${s.firstName} ${s.lastName}`,
+            codigo: s.studentCode,
+            dni: s.dni
+          }));
+          this.alumnos.set(mapped);
+          if (onLoaded) {
+            onLoaded();
+          }
+        }
+      },
+      error: (err) => console.error('Error loading class students:', err)
+    });
+  }
+
+  private cargarDatosEdicion(id: number): void {
+    this.profesorApiService.getIncidentById(id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          const incident = res.data;
+          this.form.patchValue({
+            title: incident.title,
+            classId: incident.classId,
+            description: incident.description
+          });
+          
+          this.loadStudentsForClass(incident.classId, () => {
+            const student = this.alumnos().find(a => a.id === incident.studentId);
+            if (student) {
+              this.seleccionarAlumno(student);
+            }
+          });
+        }
+      },
+      error: (err) => console.error('Error loading incident details for edit:', err)
     });
   }
 
@@ -120,7 +180,7 @@ export class IncidenciaFormComponent implements OnInit {
     }
   }
 
-  seleccionarAlumno(alumno: AlumnoMock): void {
+  seleccionarAlumno(alumno: AlumnoModel): void {
     this.alumnoSeleccionado.set(alumno);
     this.busquedaAlumno.set(alumno.nombre);
     this.mostrarSugerencias.set(false);
@@ -143,7 +203,15 @@ export class IncidenciaFormComponent implements OnInit {
       return;
     }
 
-    this.saved.emit(this.form.value as IncidenciaFormValue);
+    const val = this.form.getRawValue();
+    const payload: IncidenciaFormValue = {
+      title: val.title,
+      studentId: val.studentId,
+      classId: Number(val.classId),
+      description: val.description
+    };
+
+    this.saved.emit(payload);
     this.closed.emit();
   }
 }
