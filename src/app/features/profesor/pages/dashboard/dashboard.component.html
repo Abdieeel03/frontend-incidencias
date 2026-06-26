@@ -22,20 +22,16 @@
         </div>
         <div class="status-metrics-row">
           <div class="status-metric">
-            <span class="status-metric__label">Incidencias Abiertas</span>
-            <span class="status-metric__value text-danger">12</span>
+            <span class="status-metric__label">Incidencias Sin Leer</span>
+            <span class="status-metric__value text-danger">{{ openCount() }}</span>
           </div>
           <div class="status-metric">
-            <span class="status-metric__label">En Proceso</span>
-            <span class="status-metric__value text-warning">3</span>
+            <span class="status-metric__label">Leídas</span>
+            <span class="status-metric__value text-success">{{ resolvedCount() }}</span>
           </div>
           <div class="status-metric">
-            <span class="status-metric__label">Resueltas (Hoy)</span>
-            <span class="status-metric__value text-success">8</span>
-          </div>
-          <div class="status-metric">
-            <span class="status-metric__label">Archivadas</span>
-            <span class="status-metric__value text-muted">5</span>
+            <span class="status-metric__label">Total Histórico</span>
+            <span class="status-metric__value text-primary">{{ incidencias().length }}</span>
           </div>
         </div>
       </div>
@@ -49,7 +45,7 @@
             </svg>
             <input 
               type="text" 
-              placeholder="Buscar..." 
+              placeholder="Buscar por alumno o título..." 
               class="app-input search-input" 
               [value]="busqueda()"
               (input)="onSearch($event)"
@@ -72,12 +68,12 @@
             <tbody>
               @for (inc of incidenciasFiltradas(); track inc.id) {
                 <tr>
-                  <td class="col-code">{{ inc.codigo }}</td>
-                  <td class="col-student-name">{{ inc.estudiante }}</td>
-                  <td class="col-title">{{ inc.titulo }}</td>
+                  <td class="col-code">#INC-{{ inc.id }}</td>
+                  <td class="col-student-name">{{ inc.studentName }}</td>
+                  <td class="col-title">{{ inc.title }}</td>
                   <td>
-                    <span class="app-chip" [class]="'app-chip--' + (inc.estado === 'en_proceso' ? 'pending' : inc.estado === 'abierta' ? 'critical' : 'resolved')">
-                      {{ inc.estado === 'abierta' ? 'Abierta' : inc.estado === 'en_proceso' ? 'En Proceso' : inc.estado === 'resuelta' ? 'Resuelta' : 'Archivada' }}
+                    <span class="app-chip" [class]="'app-chip--' + (inc.status === 'NO_LEIDA' ? 'critical' : 'resolved')">
+                      {{ inc.status === 'NO_LEIDA' ? 'Sin Leer' : 'Leída' }}
                     </span>
                   </td>
                   <td class="col-actions">
@@ -136,8 +132,8 @@
       <div class="app-card modal-card" role="dialog" aria-modal="true">
         <header class="modal-card__header">
           <div class="modal-title-container">
-            <span class="modal-badge-id">{{ inc.codigo }}</span>
-            <h2 class="modal-title">{{ inc.titulo }}</h2>
+            <span class="modal-badge-id">#INC-{{ inc.id }}</span>
+            <h2 class="modal-title">{{ inc.title }}</h2>
           </div>
           <button type="button" class="btn-close" (click)="cerrarModal()" aria-label="Cerrar modal">×</button>
         </header>
@@ -145,25 +141,25 @@
         <div class="modal-card__body">
           <div class="detail-row">
             <span class="detail-label">Estudiante</span>
-            <span class="detail-value">{{ inc.estudiante }}</span>
+            <span class="detail-value">{{ inc.studentName }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Aula / Clase</span>
-            <span class="detail-value">{{ inc.aula }}</span>
+            <span class="detail-value">{{ inc.className }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Fecha y Hora</span>
-            <span class="detail-value">{{ inc.fecha }} - {{ inc.hora }}</span>
+            <span class="detail-value">{{ inc.incidentDate }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Estado</span>
-            <span class="app-chip" [class]="'app-chip--' + (inc.estado === 'en_proceso' ? 'pending' : inc.estado === 'abierta' ? 'critical' : 'resolved')">
-              {{ inc.estado === 'abierta' ? 'Abierta' : inc.estado === 'en_proceso' ? 'En Proceso' : inc.estado === 'resuelta' ? 'Resuelta' : 'Archivada' }}
+            <span class="app-chip" [class]="'app-chip--' + (inc.status === 'NO_LEIDA' ? 'critical' : 'resolved')">
+              {{ inc.status === 'NO_LEIDA' ? 'Sin Leer' : 'Leída' }}
             </span>
           </div>
           <div class="detail-description-box">
             <span class="detail-label block">Descripción Detallada</span>
-            <p class="detail-description-text">{{ inc.descripcion }}</p>
+            <p class="detail-description-text">{{ inc.description }}</p>
           </div>
         </div>
 
