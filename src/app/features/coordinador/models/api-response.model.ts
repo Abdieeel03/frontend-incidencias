@@ -1,5 +1,1 @@
-export type ApiResponse<T> = {
-  success: boolean;
-  message?: string;
-  data: T;
-};
+export type { ApiResponse } from '@core/auth/models/api-response.model';

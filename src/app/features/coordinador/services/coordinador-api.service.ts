@@ -1,30 +1,162 @@
 import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse } from '../models/api-response.model';
-import { UserResponse } from '../models/user-response.model';
-import { StudentResponse } from '../models/student-response.model';
-import { SchoolClassResponse } from '../models/school-class-response.model';
-import { IncidentResponse } from '../models/incident-response.model';
+
+import { environment } from '@env/environment';
+import { ApiResponse } from '@core/auth/models/api-response.model';
+import {
+  UserResponse,
+  CreateUserRequest,
+  CoordinatorUpdateUserRequest,
+} from '@core/auth/models/user-response.model';
+import {
+  StudentResponse,
+  CreateStudentRequest,
+  UpdateStudentRequest,
+  StudentDetailResponse,
+} from '@core/auth/models/student-response.model';
+import {
+  SchoolClassResponse,
+  CreateClassRequest,
+  UpdateSchoolClassRequest,
+  AddStudentsRequest,
+} from '@core/auth/models/school-class-response.model';
+import { IncidentResponse } from '@core/auth/models/incident-response.model';
 
 @Service()
 export class CoordinadorApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api';
+  private readonly baseUrl = environment.apiUrl;
 
+  // ─── USUARIOS ────────────────────────────────────────────────────────
   getUsers(): Observable<ApiResponse<UserResponse[]>> {
     return this.http.get<ApiResponse<UserResponse[]>>(`${this.baseUrl}/users`);
   }
 
+  getUserById(id: number): Observable<ApiResponse<UserResponse>> {
+    return this.http.get<ApiResponse<UserResponse>>(`${this.baseUrl}/users/${id}`);
+  }
+
+  getTeachers(): Observable<ApiResponse<UserResponse[]>> {
+    return this.http.get<ApiResponse<UserResponse[]>>(`${this.baseUrl}/users/teachers`);
+  }
+
+  getParents(): Observable<ApiResponse<UserResponse[]>> {
+    return this.http.get<ApiResponse<UserResponse[]>>(`${this.baseUrl}/users/parents`);
+  }
+
+  searchParentByDni(dni: string): Observable<ApiResponse<UserResponse>> {
+    return this.http.get<ApiResponse<UserResponse>>(`${this.baseUrl}/users/parents/dni/${dni}`);
+  }
+
+  createUser(request: CreateUserRequest): Observable<ApiResponse<UserResponse>> {
+    return this.http.post<ApiResponse<UserResponse>>(`${this.baseUrl}/users`, request);
+  }
+
+  updateUserDniRole(id: number, request: CoordinatorUpdateUserRequest): Observable<ApiResponse<UserResponse>> {
+    return this.http.put<ApiResponse<UserResponse>>(`${this.baseUrl}/users/coordinator/${id}`, request);
+  }
+
+  getDeletedUsers(): Observable<ApiResponse<UserResponse[]>> {
+    return this.http.get<ApiResponse<UserResponse[]>>(`${this.baseUrl}/users/deleted`);
+  }
+
+  restoreUser(id: number): Observable<ApiResponse<UserResponse>> {
+    return this.http.patch<ApiResponse<UserResponse>>(`${this.baseUrl}/users/${id}/restore`, {});
+  }
+
+  deleteUser(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/users/${id}`);
+  }
+
+  // ─── ESTUDIANTES ──────────────────────────────────────────────────────
   getStudents(): Observable<ApiResponse<StudentResponse[]>> {
     return this.http.get<ApiResponse<StudentResponse[]>>(`${this.baseUrl}/students`);
   }
 
+  getDeletedStudents(): Observable<ApiResponse<StudentResponse[]>> {
+    return this.http.get<ApiResponse<StudentResponse[]>>(`${this.baseUrl}/students/deleted`);
+  }
+
+  getStudentById(id: number): Observable<ApiResponse<StudentResponse>> {
+    return this.http.get<ApiResponse<StudentResponse>>(`${this.baseUrl}/students/${id}`);
+  }
+
+  getStudentDetails(id: number): Observable<ApiResponse<StudentDetailResponse>> {
+    return this.http.get<ApiResponse<StudentDetailResponse>>(`${this.baseUrl}/students/${id}/details`);
+  }
+
+  createStudent(request: CreateStudentRequest): Observable<ApiResponse<StudentResponse>> {
+    return this.http.post<ApiResponse<StudentResponse>>(`${this.baseUrl}/students`, request);
+  }
+
+  updateStudent(id: number, request: UpdateStudentRequest): Observable<ApiResponse<StudentResponse>> {
+    return this.http.put<ApiResponse<StudentResponse>>(`${this.baseUrl}/students/${id}`, request);
+  }
+
+  deleteStudent(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/students/${id}`);
+  }
+
+  restoreStudent(id: number): Observable<ApiResponse<StudentResponse>> {
+    return this.http.patch<ApiResponse<StudentResponse>>(`${this.baseUrl}/students/${id}/restore`, {});
+  }
+
+  searchStudents(query: string): Observable<ApiResponse<StudentResponse[]>> {
+    return this.http.get<ApiResponse<StudentResponse[]>>(`${this.baseUrl}/students/search?query=${query}`);
+  }
+
+  getStudentsByParent(parentId: number): Observable<ApiResponse<StudentResponse[]>> {
+    return this.http.get<ApiResponse<StudentResponse[]>>(`${this.baseUrl}/students/parent/${parentId}`);
+  }
+
+  // ─── CLASES ──────────────────────────────────────────────────────────
   getClasses(): Observable<ApiResponse<SchoolClassResponse[]>> {
     return this.http.get<ApiResponse<SchoolClassResponse[]>>(`${this.baseUrl}/classes`);
   }
 
+  getClassById(id: number): Observable<ApiResponse<SchoolClassResponse>> {
+    return this.http.get<ApiResponse<SchoolClassResponse>>(`${this.baseUrl}/classes/${id}`);
+  }
+
+  createClass(request: CreateClassRequest): Observable<ApiResponse<SchoolClassResponse>> {
+    return this.http.post<ApiResponse<SchoolClassResponse>>(`${this.baseUrl}/classes`, request);
+  }
+
+  updateClass(id: number, request: UpdateSchoolClassRequest): Observable<ApiResponse<SchoolClassResponse>> {
+    return this.http.put<ApiResponse<SchoolClassResponse>>(`${this.baseUrl}/classes/${id}`, request);
+  }
+
+  addClassStudents(classId: number, request: AddStudentsRequest): Observable<ApiResponse<SchoolClassResponse>> {
+    return this.http.put<ApiResponse<SchoolClassResponse>>(`${this.baseUrl}/classes/${classId}/students`, request);
+  }
+
+  deleteClass(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/classes/${id}`);
+  }
+
+  restoreClass(id: number): Observable<ApiResponse<SchoolClassResponse>> {
+    return this.http.put<ApiResponse<SchoolClassResponse>>(`${this.baseUrl}/classes/restore/${id}`, {});
+  }
+
+  getClassStudents(classId: number): Observable<ApiResponse<StudentResponse[]>> {
+    return this.http.get<ApiResponse<StudentResponse[]>>(`${this.baseUrl}/classes/${classId}/students`);
+  }
+
+  // ─── INCIDENCIAS ─────────────────────────────────────────────────────
   getIncidents(): Observable<ApiResponse<IncidentResponse[]>> {
     return this.http.get<ApiResponse<IncidentResponse[]>>(`${this.baseUrl}/incidents`);
+  }
+
+  getIncidentById(id: number): Observable<ApiResponse<IncidentResponse>> {
+    return this.http.get<ApiResponse<IncidentResponse>>(`${this.baseUrl}/incidents/${id}`);
+  }
+
+  getIncidentsByClass(classId: number): Observable<ApiResponse<IncidentResponse[]>> {
+    return this.http.get<ApiResponse<IncidentResponse[]>>(`${this.baseUrl}/incidents/class/${classId}`);
+  }
+
+  getIncidentsByStudent(studentId: number): Observable<ApiResponse<IncidentResponse[]>> {
+    return this.http.get<ApiResponse<IncidentResponse[]>>(`${this.baseUrl}/incidents/student/${studentId}`);
   }
 }
