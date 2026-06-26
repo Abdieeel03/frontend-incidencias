@@ -1,5 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+import { PadreApiService } from '@features/padre/services/padre-api.service';
 
 type ChildCard = {
   readonly id: number;
@@ -10,35 +14,17 @@ type ChildCard = {
   readonly pendingIncidentsCount: number;
 };
 
-const MOCK_CHILDREN: readonly ChildCard[] = [
-  {
-    id: 1,
-    firstName: 'Valentina',
-    lastName: 'Ramirez',
-    studentCode: 'EST-2026-014',
-    totalIncidentsCount: 3,
-    pendingIncidentsCount: 1,
-  },
-  {
-    id: 2,
-    firstName: 'Mateo',
-    lastName: 'Ramirez',
-    studentCode: 'EST-2026-029',
-    totalIncidentsCount: 1,
-    pendingIncidentsCount: 0,
-  },
-];
-
 @Component({
   selector: 'app-padre-home',
   imports: [],
   templateUrl: './padre-home.component.html',
   styleUrl: './padre-home.component.css',
 })
-export class PadreHomeComponent {
+export class PadreHomeComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly padreApiService = inject(PadreApiService);
 
-  protected readonly children = signal(MOCK_CHILDREN);
+  protected readonly children = signal<ChildCard[]>([]);
 
   protected readonly globalStats = computed(() => {
     const children = this.children();
@@ -51,6 +37,49 @@ export class PadreHomeComponent {
       read: total - pending,
     };
   });
+
+  ngOnInit(): void {
+    this.loadChildrenData();
+  }
+
+  private loadChildrenData(): void {
+    this.padreApiService.getMyChildren().subscribe({
+      next: (res) => {
+        if (res.success) {
+          const childrenList = res.data;
+          
+          if (childrenList.length === 0) {
+            this.children.set([]);
+            return;
+          }
+
+          const requests = childrenList.map(c => 
+            this.padreApiService.getIncidentsByStudent(c.id).pipe(
+              map(incRes => {
+                const incidents = incRes.success ? incRes.data : [];
+                return {
+                  id: c.id,
+                  firstName: c.firstName,
+                  lastName: c.lastName,
+                  studentCode: c.studentCode,
+                  totalIncidentsCount: incidents.length,
+                  pendingIncidentsCount: incidents.filter(i => i.status === 'NO_LEIDA').length
+                };
+              })
+            )
+          );
+
+          forkJoin(requests).subscribe({
+            next: (mappedChildren) => {
+              this.children.set(mappedChildren);
+            },
+            error: (err) => console.error('Error combining children stats:', err)
+          });
+        }
+      },
+      error: (err) => console.error('Error fetching parent children:', err)
+    });
+  }
 
   protected viewReports(childId: number): void {
     void this.router.navigate(['/padre/mis-hijos'], {
