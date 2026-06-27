@@ -2,8 +2,22 @@ const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 
-const envPath = path.join(__dirname, '..', '.env');
-const env = dotenv.parse(fs.readFileSync(envPath));
+const root = path.join(__dirname, '..');
+const envPath = path.join(root, '.env');
+const envExamplePath = path.join(root, '.env.example');
+
+let env;
+
+if (fs.existsSync(envPath)) {
+  env = dotenv.parse(fs.readFileSync(envPath));
+  console.log('Using .env file');
+} else if (fs.existsSync(envExamplePath)) {
+  env = dotenv.parse(fs.readFileSync(envExamplePath));
+  console.log('.env not found, falling back to .env.example');
+} else {
+  env = {};
+  console.log('No .env or .env.example found, using defaults');
+}
 
 const supabaseUrl = env.SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseAnonKey = env.SUPABASE_ANON_KEY || 'placeholder-key';
@@ -31,10 +45,15 @@ const environmentProdContent = `export const environment = {
 };
 `;
 
-const envDevPath = path.join(__dirname, '..', 'src', 'app', 'environments', 'environment.ts');
-const envProdPath = path.join(__dirname, '..', 'src', 'app', 'environments', 'environment.prod.ts');
+const envDevPath = path.join(root, 'src', 'app', 'environments', 'environment.ts');
+const envProdPath = path.join(root, 'src', 'app', 'environments', 'environment.prod.ts');
+
+const envDir = path.dirname(envDevPath);
+if (!fs.existsSync(envDir)) {
+  fs.mkdirSync(envDir, { recursive: true });
+}
 
 fs.writeFileSync(envDevPath, environmentContent);
 fs.writeFileSync(envProdPath, environmentProdContent);
 
-console.log('Environment files generated from .env');
+console.log('Environment files generated');
