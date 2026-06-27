@@ -1,11 +1,13 @@
 import { computed, inject, Service, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 
 import { environment } from '@app/environments/environment';
 import { ApiResponse } from '../models/api-response.model';
 import { AuthResponse } from '../models/auth-response.model';
 import { AuthSession } from '../models/auth-session.model';
+import { AuthUser } from '../models/auth-user.model';
+import { UserResponse } from '../models/user-response.model';
 import { UserRole, USER_ROLES } from '../models/user-role.model';
 import { LoginRequest, RegisterRequest, ResetPasswordRequest } from '../models/auth-request.model';
 
@@ -24,6 +26,7 @@ export class AuthService {
     if (savedSession) {
       try {
         this.sessionState.set(JSON.parse(savedSession));
+        this.refreshUserProfile();
       } catch {
         localStorage.removeItem('rise_session');
       }
@@ -37,6 +40,7 @@ export class AuthService {
         tap((response) => {
           if (response.success && response.data) {
             this.setSessionFromAuthResponse(response.data);
+            this.refreshUserProfile();
           }
         })
       );
@@ -49,6 +53,7 @@ export class AuthService {
         tap((response) => {
           if (response.success && response.data) {
             this.setSessionFromAuthResponse(response.data);
+            this.refreshUserProfile();
           }
         })
       );
@@ -74,6 +79,40 @@ export class AuthService {
   setSession(session: AuthSession): void {
     this.sessionState.set(session);
     localStorage.setItem('rise_session', JSON.stringify(session));
+  }
+
+  private refreshUserProfile(): void {
+    this.fetchCurrentUser().subscribe({
+      next: (user) => {
+        const session = this.session();
+        if (session && user) {
+          this.setSession({
+            ...session,
+            user: this.mapUserResponseToAuthUser(user),
+          });
+        }
+      },
+      error: () => {
+        // Silently ignore — profile image just won't appear
+      },
+    });
+  }
+
+  private fetchCurrentUser(): Observable<UserResponse> {
+    return this.http
+      .get<ApiResponse<UserResponse>>(`${environment.apiUrl}/users/me`)
+      .pipe(map((response) => response.data));
+  }
+
+  private mapUserResponseToAuthUser(user: UserResponse): AuthUser {
+    return {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      imageUrl: user.imageUrl,
+    };
   }
 
   setSessionFromAuthResponse(response: AuthResponse): void {
