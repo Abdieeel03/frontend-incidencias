@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 import { environment } from '@app/environments/environment';
 import { ApiResponse } from '@core/auth/models/api-response.model';
@@ -22,10 +22,12 @@ import {
   AddStudentsRequest,
 } from '@core/auth/models/school-class-response.model';
 import { IncidentResponse } from '@core/auth/models/incident-response.model';
+import { CacheService } from '@core/auth/services/cache.service';
 
 @Service()
 export class CoordinadorApiService {
   private readonly http = inject(HttpClient);
+  private readonly cacheService = inject(CacheService);
   private readonly baseUrl = environment.apiUrl;
 
   // ─── USUARIOS ────────────────────────────────────────────────────────
@@ -50,17 +52,18 @@ export class CoordinadorApiService {
   }
 
   createUser(request: CreateUserRequest): Observable<ApiResponse<UserResponse>> {
-    return this.http.post<ApiResponse<UserResponse>>(`${this.baseUrl}/users`, request);
+    return this.http
+      .post<ApiResponse<UserResponse>>(`${this.baseUrl}/users`, request)
+      .pipe(tap(() => this.cacheService.invalidate('/users')));
   }
 
   updateUserDniRole(
     id: number,
     request: CoordinatorUpdateUserRequest
   ): Observable<ApiResponse<UserResponse>> {
-    return this.http.put<ApiResponse<UserResponse>>(
-      `${this.baseUrl}/users/coordinator/${id}`,
-      request
-    );
+    return this.http
+      .put<ApiResponse<UserResponse>>(`${this.baseUrl}/users/coordinator/${id}`, request)
+      .pipe(tap(() => this.cacheService.invalidate('/users')));
   }
 
   getDeletedUsers(): Observable<ApiResponse<UserResponse[]>> {
@@ -68,11 +71,15 @@ export class CoordinadorApiService {
   }
 
   restoreUser(id: number): Observable<ApiResponse<UserResponse>> {
-    return this.http.patch<ApiResponse<UserResponse>>(`${this.baseUrl}/users/${id}/restore`, {});
+    return this.http
+      .patch<ApiResponse<UserResponse>>(`${this.baseUrl}/users/${id}/restore`, {})
+      .pipe(tap(() => this.cacheService.invalidate('/users')));
   }
 
   deleteUser(id: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/users/${id}`);
+    return this.http
+      .delete<ApiResponse<void>>(`${this.baseUrl}/users/${id}`)
+      .pipe(tap(() => this.cacheService.invalidate('/users')));
   }
 
   // ─── ESTUDIANTES ──────────────────────────────────────────────────────
@@ -95,25 +102,30 @@ export class CoordinadorApiService {
   }
 
   createStudent(request: CreateStudentRequest): Observable<ApiResponse<StudentResponse>> {
-    return this.http.post<ApiResponse<StudentResponse>>(`${this.baseUrl}/students`, request);
+    return this.http
+      .post<ApiResponse<StudentResponse>>(`${this.baseUrl}/students`, request)
+      .pipe(tap(() => this.cacheService.invalidate('/students')));
   }
 
   updateStudent(
     id: number,
     request: UpdateStudentRequest
   ): Observable<ApiResponse<StudentResponse>> {
-    return this.http.put<ApiResponse<StudentResponse>>(`${this.baseUrl}/students/${id}`, request);
+    return this.http
+      .put<ApiResponse<StudentResponse>>(`${this.baseUrl}/students/${id}`, request)
+      .pipe(tap(() => this.cacheService.invalidate('/students')));
   }
 
   deleteStudent(id: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/students/${id}`);
+    return this.http
+      .delete<ApiResponse<void>>(`${this.baseUrl}/students/${id}`)
+      .pipe(tap(() => this.cacheService.invalidate('/students')));
   }
 
   restoreStudent(id: number): Observable<ApiResponse<StudentResponse>> {
-    return this.http.patch<ApiResponse<StudentResponse>>(
-      `${this.baseUrl}/students/${id}/restore`,
-      {}
-    );
+    return this.http
+      .patch<ApiResponse<StudentResponse>>(`${this.baseUrl}/students/${id}/restore`, {})
+      .pipe(tap(() => this.cacheService.invalidate('/students')));
   }
 
   searchStudents(query: string): Observable<ApiResponse<StudentResponse[]>> {
@@ -138,38 +150,39 @@ export class CoordinadorApiService {
   }
 
   createClass(request: CreateClassRequest): Observable<ApiResponse<SchoolClassResponse>> {
-    return this.http.post<ApiResponse<SchoolClassResponse>>(`${this.baseUrl}/classes`, request);
+    return this.http
+      .post<ApiResponse<SchoolClassResponse>>(`${this.baseUrl}/classes`, request)
+      .pipe(tap(() => this.cacheService.invalidate('/classes')));
   }
 
   updateClass(
     id: number,
     request: UpdateSchoolClassRequest
   ): Observable<ApiResponse<SchoolClassResponse>> {
-    return this.http.put<ApiResponse<SchoolClassResponse>>(
-      `${this.baseUrl}/classes/${id}`,
-      request
-    );
+    return this.http
+      .put<ApiResponse<SchoolClassResponse>>(`${this.baseUrl}/classes/${id}`, request)
+      .pipe(tap(() => this.cacheService.invalidate('/classes')));
   }
 
   addClassStudents(
     classId: number,
     request: AddStudentsRequest
   ): Observable<ApiResponse<SchoolClassResponse>> {
-    return this.http.put<ApiResponse<SchoolClassResponse>>(
-      `${this.baseUrl}/classes/${classId}/students`,
-      request
-    );
+    return this.http
+      .put<ApiResponse<SchoolClassResponse>>(`${this.baseUrl}/classes/${classId}/students`, request)
+      .pipe(tap(() => this.cacheService.invalidate('/classes')));
   }
 
   deleteClass(id: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/classes/${id}`);
+    return this.http
+      .delete<ApiResponse<void>>(`${this.baseUrl}/classes/${id}`)
+      .pipe(tap(() => this.cacheService.invalidate('/classes')));
   }
 
   restoreClass(id: number): Observable<ApiResponse<SchoolClassResponse>> {
-    return this.http.put<ApiResponse<SchoolClassResponse>>(
-      `${this.baseUrl}/classes/restore/${id}`,
-      {}
-    );
+    return this.http
+      .put<ApiResponse<SchoolClassResponse>>(`${this.baseUrl}/classes/restore/${id}`, {})
+      .pipe(tap(() => this.cacheService.invalidate('/classes')));
   }
 
   getClassStudents(classId: number): Observable<ApiResponse<StudentResponse[]>> {

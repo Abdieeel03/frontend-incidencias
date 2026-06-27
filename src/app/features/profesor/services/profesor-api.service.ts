@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 import { environment } from '@app/environments/environment';
 import { ApiResponse } from '@core/auth/models/api-response.model';
@@ -11,10 +11,12 @@ import {
   CreateIncidentRequest,
   UpdateIncidentRequest,
 } from '@core/auth/models/incident-response.model';
+import { CacheService } from '@core/auth/services/cache.service';
 
 @Service()
 export class ProfesorApiService {
   private readonly http = inject(HttpClient);
+  private readonly cacheService = inject(CacheService);
   private readonly baseUrl = environment.apiUrl;
 
   // ─── CLASES (AULAS) ──────────────────────────────────────────────────
@@ -42,25 +44,30 @@ export class ProfesorApiService {
   }
 
   createIncident(request: CreateIncidentRequest): Observable<ApiResponse<IncidentResponse>> {
-    return this.http.post<ApiResponse<IncidentResponse>>(`${this.baseUrl}/incidents`, request);
+    return this.http
+      .post<ApiResponse<IncidentResponse>>(`${this.baseUrl}/incidents`, request)
+      .pipe(tap(() => this.cacheService.invalidate('/incidents')));
   }
 
   updateIncident(
     id: number,
     request: UpdateIncidentRequest
   ): Observable<ApiResponse<IncidentResponse>> {
-    return this.http.put<ApiResponse<IncidentResponse>>(`${this.baseUrl}/incidents/${id}`, request);
+    return this.http
+      .put<ApiResponse<IncidentResponse>>(`${this.baseUrl}/incidents/${id}`, request)
+      .pipe(tap(() => this.cacheService.invalidate('/incidents')));
   }
 
   deleteIncident(id: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/incidents/${id}`);
+    return this.http
+      .delete<ApiResponse<void>>(`${this.baseUrl}/incidents/${id}`)
+      .pipe(tap(() => this.cacheService.invalidate('/incidents')));
   }
 
   restoreIncident(id: number): Observable<ApiResponse<IncidentResponse>> {
-    return this.http.put<ApiResponse<IncidentResponse>>(
-      `${this.baseUrl}/incidents/restore/${id}`,
-      {}
-    );
+    return this.http
+      .put<ApiResponse<IncidentResponse>>(`${this.baseUrl}/incidents/restore/${id}`, {})
+      .pipe(tap(() => this.cacheService.invalidate('/incidents')));
   }
 
   getDeletedIncidents(): Observable<ApiResponse<IncidentResponse[]>> {

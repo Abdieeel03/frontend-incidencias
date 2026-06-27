@@ -1,15 +1,17 @@
 import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
-import { environment } from '@app/environments/environment';
+import { environment } from '@env/environment';
 import { ApiResponse } from '@core/auth/models/api-response.model';
 import { StudentResponse, StudentDetailResponse } from '@core/auth/models/student-response.model';
 import { IncidentResponse } from '@core/auth/models/incident-response.model';
+import { CacheService } from '@core/auth/services/cache.service';
 
 @Service()
 export class PadreApiService {
   private readonly http = inject(HttpClient);
+  private readonly cacheService = inject(CacheService);
   private readonly baseUrl = environment.apiUrl;
 
   // ─── ESTUDIANTES (HIJOS) ──────────────────────────────────────────────
@@ -35,6 +37,8 @@ export class PadreApiService {
   }
 
   markAsRead(id: number): Observable<ApiResponse<void>> {
-    return this.http.patch<ApiResponse<void>>(`${this.baseUrl}/incidents/${id}/read`, {});
+    return this.http
+      .patch<ApiResponse<void>>(`${this.baseUrl}/incidents/${id}/read`, {})
+      .pipe(tap(() => this.cacheService.invalidate('/incidents')));
   }
 }
