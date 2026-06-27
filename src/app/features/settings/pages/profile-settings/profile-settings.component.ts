@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { AuthService } from '@core/auth/services/auth.service';
+import { SupabaseStorageService } from '@app/core/services/supabase-storage.service';
 import { SettingsApiService } from '@features/settings/services/settings-api.service';
 
 @Component({
@@ -12,6 +13,7 @@ import { SettingsApiService } from '@features/settings/services/settings-api.ser
 })
 export class ProfileSettingsComponent implements OnInit {
   protected readonly authService = inject(AuthService);
+  private readonly supabaseStorageService = inject(SupabaseStorageService);
   private readonly settingsApiService = inject(SettingsApiService);
 
   protected readonly oldPassword = signal('');
@@ -20,6 +22,7 @@ export class ProfileSettingsComponent implements OnInit {
   protected readonly isSavingPassword = signal(false);
   protected readonly passwordErrors = signal<Record<string, string>>({});
   protected readonly passwordSuccess = signal(false);
+  protected readonly isUploadingImage = signal(false);
 
   protected readonly profileImage = signal<string | null>(null);
 
@@ -68,30 +71,33 @@ export class ProfileSettingsComponent implements OnInit {
     this.isSavingPassword.set(true);
     this.passwordSuccess.set(false);
 
-    this.settingsApiService.changePassword({
-      currentPassword: this.oldPassword(),
-      newPassword: this.newPassword(),
-      confirmPassword: this.confirmPassword()
-    }).subscribe({
-      next: (res) => {
-        this.isSavingPassword.set(false);
-        if (res.success) {
-          this.oldPassword.set('');
-          this.newPassword.set('');
-          this.confirmPassword.set('');
-          this.passwordErrors.set({});
-          this.passwordSuccess.set(true);
-          setTimeout(() => this.passwordSuccess.set(false), 3000);
-        } else {
-          this.passwordErrors.set({ form: res.message || 'Error al cambiar la contraseña.' });
-        }
-      },
-      error: (err) => {
-        this.isSavingPassword.set(false);
-        const errMsg = err.error?.message || 'Error al cambiar la contraseña. Verifique sus datos.';
-        this.passwordErrors.set({ form: errMsg });
-      }
-    });
+    this.settingsApiService
+      .changePassword({
+        currentPassword: this.oldPassword(),
+        newPassword: this.newPassword(),
+        confirmPassword: this.confirmPassword(),
+      })
+      .subscribe({
+        next: (res) => {
+          this.isSavingPassword.set(false);
+          if (res.success) {
+            this.oldPassword.set('');
+            this.newPassword.set('');
+            this.confirmPassword.set('');
+            this.passwordErrors.set({});
+            this.passwordSuccess.set(true);
+            setTimeout(() => this.passwordSuccess.set(false), 3000);
+          } else {
+            this.passwordErrors.set({ form: res.message || 'Error al cambiar la contraseña.' });
+          }
+        },
+        error: (err) => {
+          this.isSavingPassword.set(false);
+          const errMsg =
+            err.error?.message || 'Error al cambiar la contraseña. Verifique sus datos.';
+          this.passwordErrors.set({ form: errMsg });
+        },
+      });
   }
 
   protected onImageSelected(event: Event): void {
@@ -104,39 +110,43 @@ export class ProfileSettingsComponent implements OnInit {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      
-      // Call API to persist own profile image
-      this.settingsApiService.updateProfile({
-        email: this.user()?.email || '',
-        imageUrl: dataUrl
-      }).subscribe({
-        next: (res) => {
-          if (res.success) {
-            this.profileImage.set(res.data.imageUrl || dataUrl);
-            
-            // Update auth session image so sidebar updates immediately
-            const session = this.authService.session();
-            if (session) {
-              this.authService.setSession({
-                ...session,
-                user: {
-                  ...session.user,
-                  imageUrl: res.data.imageUrl || dataUrl
-                }
-              });
+    const userId = this.user()?.id;
+    if (!userId) return;
+
+    this.isUploadingImage.set(true);
+
+    this.supabaseStorageService.uploadProfileImage(userId, file).subscribe({
+      next: (publicUrl) => {
+        this.settingsApiService.updateImageUrl(publicUrl).subscribe({
+          next: (res) => {
+            this.isUploadingImage.set(false);
+            if (res.success) {
+              this.profileImage.set(publicUrl);
+              const session = this.authService.session();
+              if (session) {
+                this.authService.setSession({
+                  ...session,
+                  user: {
+                    ...session.user,
+                    imageUrl: publicUrl,
+                  },
+                });
+              }
             }
-          }
-        },
-        error: (err) => {
-          console.error('Error updating profile picture:', err);
-          alert(err.error?.message || 'Error al guardar la imagen de perfil.');
-        }
-      });
-    };
-    reader.readAsDataURL(file);
+          },
+          error: (err) => {
+            this.isUploadingImage.set(false);
+            console.error('Error saving image URL:', err);
+            alert(err.error?.message || 'Error al guardar la imagen de perfil.');
+          },
+        });
+      },
+      error: (err) => {
+        this.isUploadingImage.set(false);
+        console.error('Error uploading image:', err);
+        alert(err.error?.message || 'Error al subir la imagen.');
+      },
+    });
   }
 
   protected triggerImageUpload(): void {

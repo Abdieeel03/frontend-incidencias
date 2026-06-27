@@ -12,12 +12,14 @@
       </h3>
 
       <div class="profile-header">
-        <div class="profile-avatar" [class.profile-avatar--has-image]="profileImage()" [style.background-image]="profileImage() ? 'url(' + profileImage() + ')' : null">
-          @if (!profileImage()) {
+        <div class="profile-avatar" [class.profile-avatar--has-image]="profileImage()" [class.profile-avatar--uploading]="isUploadingImage()" [style.background-image]="profileImage() ? 'url(' + profileImage() + ')' : null">
+          @if (isUploadingImage()) {
+          <span class="profile-avatar__spinner"></span>
+          } @else if (!profileImage()) {
           <span class="profile-avatar__initials">{{ avatarInitials() }}</span>
           }
           <button class="profile-avatar__edit" type="button" (click)="triggerImageUpload()"
-            aria-label="Cambiar foto de perfil">
+            aria-label="Cambiar foto de perfil" [disabled]="isUploadingImage()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />

@@ -81,6 +81,19 @@
   background-position: center;
 }
 
+.profile-avatar--uploading {
+  background-color: var(--color-surface-container-high);
+}
+
+.profile-avatar__spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-outline-variant);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
 .profile-avatar__edit {
   position: absolute;
   bottom: 0;
