@@ -2,7 +2,6 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { AuthService } from '@core/auth/services/auth.service';
-import { SupabaseStorageService } from '@app/core/services/supabase-storage.service';
 import { SettingsApiService } from '@features/settings/services/settings-api.service';
 
 @Component({
@@ -13,7 +12,6 @@ import { SettingsApiService } from '@features/settings/services/settings-api.ser
 })
 export class ProfileSettingsComponent implements OnInit {
   protected readonly authService = inject(AuthService);
-  private readonly supabaseStorageService = inject(SupabaseStorageService);
   private readonly settingsApiService = inject(SettingsApiService);
 
   protected readonly oldPassword = signal('');
@@ -34,10 +32,37 @@ export class ProfileSettingsComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const imageUrl = this.user()?.imageUrl;
-    if (imageUrl) {
-      this.profileImage.set(imageUrl);
-    }
+    // Load fresh user data on init
+    this.settingsApiService.getMe().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          const freshUser = res.data;
+          const session = this.authService.session();
+          if (session) {
+            this.authService.setSession({
+              ...session,
+              user: {
+                ...session.user,
+                name: freshUser.name,
+                email: freshUser.email,
+                imageUrl: freshUser.imageUrl,
+              },
+            });
+          }
+          if (freshUser.imageUrl) {
+            this.profileImage.set(freshUser.imageUrl);
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching latest user profile:', err);
+        // Fallback to local session image if fetch fails
+        const imageUrl = this.user()?.imageUrl;
+        if (imageUrl) {
+          this.profileImage.set(imageUrl);
+        }
+      },
+    });
   }
 
   protected validatePasswordForm(): boolean {
@@ -110,25 +135,31 @@ export class ProfileSettingsComponent implements OnInit {
       return;
     }
 
-    const userId = this.user()?.id;
-    if (!userId) return;
-
     this.isUploadingImage.set(true);
 
-    this.supabaseStorageService.uploadProfileImage(userId, file).subscribe({
-      next: (publicUrl) => {
-        this.settingsApiService.updateImageUrl(publicUrl).subscribe({
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+
+      // Call dedicated updateImageUrl API to update profile picture
+      this.settingsApiService
+        .updateImageUrl({
+          imageUrl: dataUrl,
+        })
+        .subscribe({
           next: (res) => {
             this.isUploadingImage.set(false);
             if (res.success) {
-              this.profileImage.set(publicUrl);
+              this.profileImage.set(res.data.imageUrl || dataUrl);
+
+              // Update auth session image so sidebar updates immediately
               const session = this.authService.session();
               if (session) {
                 this.authService.setSession({
                   ...session,
                   user: {
                     ...session.user,
-                    imageUrl: publicUrl,
+                    imageUrl: res.data.imageUrl || dataUrl,
                   },
                 });
               }
@@ -136,17 +167,12 @@ export class ProfileSettingsComponent implements OnInit {
           },
           error: (err) => {
             this.isUploadingImage.set(false);
-            console.error('Error saving image URL:', err);
+            console.error('Error updating profile picture:', err);
             alert(err.error?.message || 'Error al guardar la imagen de perfil.');
           },
         });
-      },
-      error: (err) => {
-        this.isUploadingImage.set(false);
-        console.error('Error uploading image:', err);
-        alert(err.error?.message || 'Error al subir la imagen.');
-      },
-    });
+    };
+    reader.readAsDataURL(file);
   }
 
   protected triggerImageUpload(): void {
