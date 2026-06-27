@@ -4,7 +4,11 @@ import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angula
 import { forkJoin } from 'rxjs';
 
 import { CoordinadorApiService } from '../../services/coordinador-api.service';
-import { StudentResponse, CreateStudentRequest, UpdateStudentRequest } from '@core/auth/models/student-response.model';
+import {
+  StudentResponse,
+  CreateStudentRequest,
+  UpdateStudentRequest,
+} from '@core/auth/models/student-response.model';
 import { UserResponse } from '@core/auth/models/user-response.model';
 
 export type Student = StudentResponse;

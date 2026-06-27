@@ -45,11 +45,12 @@ export class AulasComponent implements OnInit {
     const query = this.studentSearchQuery().toLowerCase();
     const students = this.studentsInSelectedAula();
     if (!query) return students;
-    return students.filter(s => 
-      s.firstName.toLowerCase().includes(query) || 
-      s.lastName.toLowerCase().includes(query) || 
-      s.dni.includes(query) ||
-      (s.studentCode && s.studentCode.toLowerCase().includes(query))
+    return students.filter(
+      (s) =>
+        s.firstName.toLowerCase().includes(query) ||
+        s.lastName.toLowerCase().includes(query) ||
+        s.dni.includes(query) ||
+        (s.studentCode && s.studentCode.toLowerCase().includes(query))
     );
   });
 
@@ -79,7 +80,7 @@ export class AulasComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading classes details:', err);
-      }
+      },
     });
   }
 
@@ -92,7 +93,7 @@ export class AulasComponent implements OnInit {
     this.selectedAulaDetails.set(aula);
     this.isDetailsModalOpen.set(true);
     this.studentSearchQuery.set('');
-    
+
     // Load students for this class
     this.profesorApiService.getClassStudents(aula.id).subscribe({
       next: (res) => {
@@ -100,7 +101,7 @@ export class AulasComponent implements OnInit {
           this.studentsInSelectedAula.set(res.data);
         }
       },
-      error: (err) => console.error('Error loading students for class:', err)
+      error: (err) => console.error('Error loading students for class:', err),
     });
   }
 
@@ -118,14 +119,14 @@ export class AulasComponent implements OnInit {
   createIncidentForStudent(student: StudentResponse): void {
     const aula = this.selectedAulaDetails();
     if (!aula) return;
-    
+
     // Redirect to incidencias page with query params to open the form
     this.router.navigate(['/profesor/incidencias'], {
       queryParams: {
         action: 'new',
         classId: aula.id,
-        studentDni: student.dni
-      }
+        studentDni: student.dni,
+      },
     });
   }
 }

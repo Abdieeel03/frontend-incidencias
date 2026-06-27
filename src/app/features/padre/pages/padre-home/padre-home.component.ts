@@ -47,15 +47,15 @@ export class PadreHomeComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           const childrenList = res.data;
-          
+
           if (childrenList.length === 0) {
             this.children.set([]);
             return;
           }
 
-          const requests = childrenList.map(c => 
+          const requests = childrenList.map((c) =>
             this.padreApiService.getIncidentsByStudent(c.id).pipe(
-              map(incRes => {
+              map((incRes) => {
                 const incidents = incRes.success ? incRes.data : [];
                 return {
                   id: c.id,
@@ -63,7 +63,7 @@ export class PadreHomeComponent implements OnInit {
                   lastName: c.lastName,
                   studentCode: c.studentCode,
                   totalIncidentsCount: incidents.length,
-                  pendingIncidentsCount: incidents.filter(i => i.status === 'NO_LEIDA').length
+                  pendingIncidentsCount: incidents.filter((i) => i.status === 'NO_LEIDA').length,
                 };
               })
             )
@@ -73,11 +73,11 @@ export class PadreHomeComponent implements OnInit {
             next: (mappedChildren) => {
               this.children.set(mappedChildren);
             },
-            error: (err) => console.error('Error combining children stats:', err)
+            error: (err) => console.error('Error combining children stats:', err),
           });
         }
       },
-      error: (err) => console.error('Error fetching parent children:', err)
+      error: (err) => console.error('Error fetching parent children:', err),
     });
   }
 

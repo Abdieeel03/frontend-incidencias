@@ -6,7 +6,11 @@ type ButtonType = 'button' | 'submit';
   selector: 'app-auth-submit-button',
   imports: [],
   template: `
-    <button class="app-button app-button--primary auth-submit" [type]="type()" [disabled]="disabled()">
+    <button
+      class="app-button app-button--primary auth-submit"
+      [type]="type()"
+      [disabled]="disabled()"
+    >
       {{ label() }}
     </button>
   `,

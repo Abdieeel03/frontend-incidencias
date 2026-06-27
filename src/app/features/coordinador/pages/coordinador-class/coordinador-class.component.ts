@@ -288,23 +288,25 @@ export class CoordinadorClassComponent implements OnInit {
     if (!currentClass) return;
 
     this.isSavingAddedStudents.set(true);
-    this.coordinadorApiService.addClassStudents(currentClass.id, { studentIds: selected }).subscribe({
-      next: (res) => {
-        this.isSavingAddedStudents.set(false);
-        if (res.success) {
-          this.isAddingStudents.set(false);
-          this.selectedStudentIds.set([]);
-          // Reload class details to reflect changes
-          this.openDetail(currentClass);
-          // Also reload main list to update count
-          this.loadData();
-        }
-      },
-      error: (err) => {
-        this.isSavingAddedStudents.set(false);
-        console.error('Error adding students to class:', err);
-        alert(err.error?.message || 'Error al agregar los estudiantes.');
-      },
-    });
+    this.coordinadorApiService
+      .addClassStudents(currentClass.id, { studentIds: selected })
+      .subscribe({
+        next: (res) => {
+          this.isSavingAddedStudents.set(false);
+          if (res.success) {
+            this.isAddingStudents.set(false);
+            this.selectedStudentIds.set([]);
+            // Reload class details to reflect changes
+            this.openDetail(currentClass);
+            // Also reload main list to update count
+            this.loadData();
+          }
+        },
+        error: (err) => {
+          this.isSavingAddedStudents.set(false);
+          console.error('Error adding students to class:', err);
+          alert(err.error?.message || 'Error al agregar los estudiantes.');
+        },
+      });
   }
 }

@@ -1,23 +1,32 @@
-<div class="modal-overlay" role="button" tabindex="0" aria-label="Cerrar modal" (click)="closeFromOverlay($event)" (keydown.enter)="closeFromOverlay($event)" (keydown.space)="closeFromOverlay($event)">
+<div
+  class="modal-overlay"
+  role="button"
+  tabindex="0"
+  aria-label="Cerrar modal"
+  (click)="closeFromOverlay($event)"
+  (keydown.enter)="closeFromOverlay($event)"
+  (keydown.space)="closeFromOverlay($event)"
+>
   <div class="app-card modal-card" role="dialog" aria-modal="true">
-    
     <header class="modal-card__header">
-      <h2 class="modal-title">{{ isEditMode() ? 'Editar Incidencia' : 'Crear Nueva Incidencia' }}</h2>
-      <button type="button" class="btn-close" (click)="cancelar()" aria-label="Cerrar modal">×</button>
+      <h2 class="modal-title">
+        {{ isEditMode() ? 'Editar Incidencia' : 'Crear Nueva Incidencia' }}
+      </h2>
+      <button type="button" class="btn-close" (click)="cancelar()" aria-label="Cerrar modal">
+        ×
+      </button>
     </header>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="reactive-form">
-      
       <div class="modal-card__body">
-        
         <div class="form-group full-width">
           <label for="title" class="form-label">Título de la incidencia *</label>
-          <input 
-            id="title" 
-            type="text" 
-            formControlName="title" 
-            placeholder="Ej. Interrupción reiterada en clase" 
-            class="app-input" 
+          <input
+            id="title"
+            type="text"
+            formControlName="title"
+            placeholder="Ej. Interrupción reiterada en clase"
+            class="app-input"
             [class.app-input--error]="form.get('title')?.touched && form.get('title')?.invalid"
           />
           @if (form.get('title')?.touched && form.get('title')?.errors?.['required']) {
@@ -29,31 +38,45 @@
         </div>
 
         <div class="form-row-2">
-          
           <div class="form-group student-search-group">
             <label for="studentSearch" class="form-label">Alumno Implicado *</label>
             <div class="autocomplete-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon-search-input">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.637 10.637Z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="icon-search-input"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.637 10.637Z"
+                />
               </svg>
-              <input 
-                id="studentSearch" 
-                type="text" 
-                placeholder="Ingrese DNI o Código" 
-                class="app-input search-input" 
+              <input
+                id="studentSearch"
+                type="text"
+                placeholder="Ingrese DNI o Código"
+                class="app-input search-input"
                 [value]="busquedaAlumno()"
                 (input)="onStudentSearchInput($event)"
                 (focus)="mostrarSugerencias.set(true)"
-                [class.app-input--error]="form.get('studentId')?.touched && form.get('studentId')?.invalid"
+                [class.app-input--error]="
+                  form.get('studentId')?.touched && form.get('studentId')?.invalid
+                "
               />
-              
+
               @if (mostrarSugerencias() && alumnosFiltrados().length > 0) {
                 <ul class="suggestions-list">
                   @for (al of alumnosFiltrados(); track al.id) {
                     <li>
                       <button type="button" class="suggestion-item" (click)="seleccionarAlumno(al)">
                         <span class="suggestion-name">{{ al.nombre }}</span>
-                        <span class="suggestion-meta">DNI: {{ al.dni }} | Cód: {{ al.codigo }}</span>
+                        <span class="suggestion-meta"
+                          >DNI: {{ al.dni }} | Cód: {{ al.codigo }}</span
+                        >
                       </button>
                     </li>
                   }
@@ -72,11 +95,13 @@
 
           <div class="form-group">
             <label for="classId" class="form-label">Aula / Clase *</label>
-            <select 
-              id="classId" 
-              formControlName="classId" 
+            <select
+              id="classId"
+              formControlName="classId"
               class="app-select"
-              [class.app-input--error]="form.get('classId')?.touched && form.get('classId')?.invalid"
+              [class.app-input--error]="
+                form.get('classId')?.touched && form.get('classId')?.invalid
+              "
             >
               <option value="" disabled selected>Seleccione...</option>
               @for (clase of clases(); track clase.id) {
@@ -92,12 +117,14 @@
         <div class="form-row-2">
           <div class="form-group">
             <label for="incidentDate" class="form-label">Fecha de la incidencia *</label>
-            <input 
-              id="incidentDate" 
-              type="date" 
-              formControlName="incidentDate" 
+            <input
+              id="incidentDate"
+              type="date"
+              formControlName="incidentDate"
               class="app-input"
-              [class.app-input--error]="form.get('incidentDate')?.touched && form.get('incidentDate')?.invalid"
+              [class.app-input--error]="
+                form.get('incidentDate')?.touched && form.get('incidentDate')?.invalid
+              "
             />
             @if (form.get('incidentDate')?.touched && form.get('incidentDate')?.invalid) {
               <span class="error-text">Fecha obligatoria.</span>
@@ -106,24 +133,21 @@
 
           <div class="form-group">
             <label for="incidentTime" class="form-label">Hora aproximada</label>
-            <input 
-              id="incidentTime" 
-              type="time" 
-              formControlName="incidentTime" 
-              class="app-input"
-            />
+            <input id="incidentTime" type="time" formControlName="incidentTime" class="app-input" />
           </div>
         </div>
 
         <div class="form-group full-width">
           <label for="description" class="form-label">Descripción detallada *</label>
-          <textarea 
-            id="description" 
-            formControlName="description" 
-            rows="4" 
-            placeholder="Describa los hechos de manera objetiva..." 
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="4"
+            placeholder="Describa los hechos de manera objetiva..."
             class="app-textarea"
-            [class.app-input--error]="form.get('description')?.touched && form.get('description')?.invalid"
+            [class.app-input--error]="
+              form.get('description')?.touched && form.get('description')?.invalid
+            "
           ></textarea>
           <div class="textarea-footer">
             @if (form.get('description')?.touched && form.get('description')?.invalid) {
@@ -136,28 +160,26 @@
             </span>
           </div>
         </div>
-
       </div>
 
       <footer class="modal-card__footer">
         <div class="form-actions-footer">
-          <button 
-            type="button" 
-            (click)="cancelar()" 
+          <button
+            type="button"
+            (click)="cancelar()"
             class="app-button app-button--secondary btn-form-act"
           >
             Cancelar
           </button>
-          <button 
-            type="submit" 
-            [disabled]="form.invalid" 
+          <button
+            type="submit"
+            [disabled]="form.invalid"
             class="app-button app-button--primary btn-form-act"
           >
             Guardar
           </button>
         </div>
       </footer>
-
     </form>
   </div>
 </div>

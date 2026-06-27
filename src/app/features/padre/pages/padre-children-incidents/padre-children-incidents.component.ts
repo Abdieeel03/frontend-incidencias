@@ -26,27 +26,25 @@ export class PadreChildrenIncidentsComponent implements OnInit {
 
   protected readonly selectedChildId = signal<number | null>(null);
 
-  protected readonly selectedChild = computed(() =>
-    this.children().find((child) => child.id === this.selectedChildId()) ?? null
+  protected readonly selectedChild = computed(
+    () => this.children().find((child) => child.id === this.selectedChildId()) ?? null
   );
 
   protected readonly selectedIncidents = computed(() =>
     this.incidents()
       .filter((incident) => incident.studentId === this.selectedChildId())
-      .sort(
-        (a, b) => new Date(b.incidentDate).getTime() - new Date(a.incidentDate).getTime()
-      )
+      .sort((a, b) => new Date(b.incidentDate).getTime() - new Date(a.incidentDate).getTime())
   );
 
   ngOnInit(): void {
     this.padreApiService.getMyChildren().subscribe({
       next: (res) => {
         if (res.success) {
-          const list = res.data.map(c => ({
+          const list = res.data.map((c) => ({
             id: c.id,
             firstName: c.firstName,
             lastName: c.lastName,
-            studentCode: c.studentCode
+            studentCode: c.studentCode,
           }));
           this.children.set(list);
 
@@ -57,7 +55,7 @@ export class PadreChildrenIncidentsComponent implements OnInit {
           }
         }
       },
-      error: (err) => console.error('Error loading children list:', err)
+      error: (err) => console.error('Error loading children list:', err),
     });
   }
 
@@ -68,7 +66,7 @@ export class PadreChildrenIncidentsComponent implements OnInit {
           this.incidents.set(res.data);
         }
       },
-      error: (err) => console.error('Error loading incidents for child:', err)
+      error: (err) => console.error('Error loading incidents for child:', err),
     });
   }
 
@@ -93,7 +91,7 @@ export class PadreChildrenIncidentsComponent implements OnInit {
       error: (err) => {
         this.actionLoadingId.set(null);
         console.error('Error marking incident as read:', err);
-      }
+      },
     });
   }
 
@@ -101,6 +99,6 @@ export class PadreChildrenIncidentsComponent implements OnInit {
     const selectedStudentId = Number(globalThis.history?.state?.selectedStudentId);
     const childExists = list.some((child) => child.id === selectedStudentId);
 
-    return childExists ? selectedStudentId : list[0]?.id ?? null;
+    return childExists ? selectedStudentId : (list[0]?.id ?? null);
   }
 }

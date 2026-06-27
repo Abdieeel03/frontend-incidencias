@@ -4,13 +4,16 @@ import { ActivatedRoute } from '@angular/router';
 
 import { ProfesorApiService } from '@features/profesor/services/profesor-api.service';
 import { IncidentResponse } from '@core/auth/models/incident-response.model';
-import { IncidenciaFormComponent, type IncidenciaFormValue } from '../incidencia-form/incidencia-form.component';
+import {
+  IncidenciaFormComponent,
+  type IncidenciaFormValue,
+} from '../incidencia-form/incidencia-form.component';
 
 @Component({
   selector: 'app-incidencias',
   imports: [IncidenciaFormComponent, DecimalPipe],
   templateUrl: './incidencias.component.html',
-  styleUrl: './incidencias.component.css'
+  styleUrl: './incidencias.component.css',
 })
 export class IncidenciasComponent implements OnInit {
   private readonly profesorApiService = inject(ProfesorApiService);
@@ -19,33 +22,38 @@ export class IncidenciasComponent implements OnInit {
   incidencias = signal<IncidentResponse[]>([]);
   filtroEstado = signal<string>('todos');
   busqueda = signal<string>('');
-  
+
   incidenciaSeleccionada = signal<IncidentResponse | null>(null);
   mostrarFormModal = signal<boolean>(false);
   idParaEditar = signal<number | null>(null);
 
-  readonly openCount = computed(() => this.incidencias().filter(i => i.status === 'NO_LEIDA').length);
-  readonly resolvedCount = computed(() => this.incidencias().filter(i => i.status === 'LEIDA').length);
+  readonly openCount = computed(
+    () => this.incidencias().filter((i) => i.status === 'NO_LEIDA').length
+  );
+  readonly resolvedCount = computed(
+    () => this.incidencias().filter((i) => i.status === 'LEIDA').length
+  );
 
   incidenciasFiltradas = computed(() => {
     const query = this.busqueda().toLowerCase().trim();
     const estado = this.filtroEstado();
-    
-    return this.incidencias().filter(inc => {
+
+    return this.incidencias().filter((inc) => {
       const coincideEstado = estado === 'todos' || inc.status === estado;
-      const coincideBusqueda = !query || 
-        inc.studentName.toLowerCase().includes(query) || 
+      const coincideBusqueda =
+        !query ||
+        inc.studentName.toLowerCase().includes(query) ||
         inc.title.toLowerCase().includes(query) ||
         inc.id.toString().includes(query);
-        
+
       return coincideEstado && coincideBusqueda;
     });
   });
 
   ngOnInit(): void {
     this.loadIncidents();
-    
-    this.route.queryParams.subscribe(params => {
+
+    this.route.queryParams.subscribe((params) => {
       if (params['action'] === 'new') {
         this.abrirFormularioCrear();
       }
@@ -59,7 +67,7 @@ export class IncidenciasComponent implements OnInit {
           this.incidencias.set(res.data);
         }
       },
-      error: (err) => console.error('Error loading incidents:', err)
+      error: (err) => console.error('Error loading incidents:', err),
     });
   }
 
@@ -114,7 +122,7 @@ export class IncidenciasComponent implements OnInit {
         error: (err) => {
           console.error('Error updating incident:', err);
           alert(err.error?.message || 'Error al actualizar la incidencia.');
-        }
+        },
       });
     } else {
       this.profesorApiService.createIncident(datos).subscribe({
@@ -127,7 +135,7 @@ export class IncidenciasComponent implements OnInit {
         error: (err) => {
           console.error('Error creating incident:', err);
           alert(err.error?.message || 'Error al crear la incidencia.');
-        }
+        },
       });
     }
   }

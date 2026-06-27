@@ -45,9 +45,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(
-          err.error?.message || 'Error al iniciar sesión. Inténtelo de nuevo.'
-        );
+        this.errorMessage.set(err.error?.message || 'Error al iniciar sesión. Inténtelo de nuevo.');
       },
     });
   }

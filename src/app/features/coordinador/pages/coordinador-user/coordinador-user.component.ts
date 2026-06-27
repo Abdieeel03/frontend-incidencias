@@ -37,7 +37,7 @@ export class CoordinadorUserComponent implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    role: ['PADRE' as UserRole]
+    role: ['PADRE' as UserRole],
   });
 
   protected readonly isEditMode = computed(() => this.idParaEditar() !== null);
@@ -48,8 +48,9 @@ export class CoordinadorUserComponent implements OnInit {
     const query = this.search().toLowerCase().trim();
     const role = this.roleFilter();
 
-    return list.filter(user => {
-      const matchesSearch = !query || 
+    return list.filter((user) => {
+      const matchesSearch =
+        !query ||
         user.name.toLowerCase().includes(query) ||
         user.username.toLowerCase().includes(query) ||
         user.email.toLowerCase().includes(query) ||
@@ -76,14 +77,14 @@ export class CoordinadorUserComponent implements OnInit {
         this.isLoading.set(false);
         if (res.success) {
           // Filtrar para mostrar solo PROFESOR y PADRE creados (por seguridad)
-          const filtered = res.data.filter(u => u.role !== USER_ROLES.COORDINADOR);
+          const filtered = res.data.filter((u) => u.role !== USER_ROLES.COORDINADOR);
           this.users.set(filtered);
         }
       },
       error: (err) => {
         this.isLoading.set(false);
         console.error('Error loading users:', err);
-      }
+      },
     });
   }
 
@@ -92,14 +93,14 @@ export class CoordinadorUserComponent implements OnInit {
     this.idParaEditar.set(null);
     this.userForm.reset();
     this.userForm.patchValue({
-      role: 'PADRE'
+      role: 'PADRE',
     });
-    
+
     // Enable fields for creation
     this.userForm.controls.fullName.enable();
     this.userForm.controls.email.enable();
     this.userForm.controls.password.enable();
-    
+
     this.isUserModalOpen.set(true);
   }
 
@@ -107,13 +108,13 @@ export class CoordinadorUserComponent implements OnInit {
   protected openEditModal(user: UserResponse): void {
     this.idParaEditar.set(user.id);
     this.userForm.reset();
-    
+
     this.userForm.patchValue({
       fullName: user.name,
       email: user.email,
       dni: user.dni,
       role: user.role,
-      password: 'dummy-password' // Dummy value since password is not edited
+      password: 'dummy-password', // Dummy value since password is not edited
     });
 
     // Disable uneditable fields for coordinator editing
@@ -153,43 +154,47 @@ export class CoordinadorUserComponent implements OnInit {
 
     if (id !== null) {
       // Editar (solo DNI y rol)
-      this.coordinadorApiService.updateUserDniRole(id, {
-        dni: form.dni,
-        role: form.role
-      }).subscribe({
-        next: (res) => {
-          this.isSaving.set(false);
-          if (res.success) {
-            this.isUserModalOpen.set(false);
-            this.loadUsers();
-          }
-        },
-        error: (err) => {
-          this.isSaving.set(false);
-          alert(err.error?.message || 'Error al actualizar el usuario.');
-        }
-      });
+      this.coordinadorApiService
+        .updateUserDniRole(id, {
+          dni: form.dni,
+          role: form.role,
+        })
+        .subscribe({
+          next: (res) => {
+            this.isSaving.set(false);
+            if (res.success) {
+              this.isUserModalOpen.set(false);
+              this.loadUsers();
+            }
+          },
+          error: (err) => {
+            this.isSaving.set(false);
+            alert(err.error?.message || 'Error al actualizar el usuario.');
+          },
+        });
     } else {
       // Crear
-      this.coordinadorApiService.createUser({
-        name: form.fullName,
-        email: form.email,
-        dni: form.dni,
-        password: form.password,
-        role: form.role
-      }).subscribe({
-        next: (res) => {
-          this.isSaving.set(false);
-          if (res.success) {
-            this.isUserModalOpen.set(false);
-            this.loadUsers();
-          }
-        },
-        error: (err) => {
-          this.isSaving.set(false);
-          alert(err.error?.message || 'Error al crear el usuario.');
-        }
-      });
+      this.coordinadorApiService
+        .createUser({
+          name: form.fullName,
+          email: form.email,
+          dni: form.dni,
+          password: form.password,
+          role: form.role,
+        })
+        .subscribe({
+          next: (res) => {
+            this.isSaving.set(false);
+            if (res.success) {
+              this.isUserModalOpen.set(false);
+              this.loadUsers();
+            }
+          },
+          error: (err) => {
+            this.isSaving.set(false);
+            alert(err.error?.message || 'Error al crear el usuario.');
+          },
+        });
     }
   }
 
@@ -205,7 +210,7 @@ export class CoordinadorUserComponent implements OnInit {
         error: (err) => {
           console.error('Error deleting user:', err);
           alert(err.error?.message || 'Error al eliminar el usuario.');
-        }
+        },
       });
     }
   }
@@ -221,7 +226,7 @@ export class CoordinadorUserComponent implements OnInit {
       error: (err) => {
         console.error('Error restoring user:', err);
         alert(err.error?.message || 'Error al restaurar el usuario.');
-      }
+      },
     });
   }
 }

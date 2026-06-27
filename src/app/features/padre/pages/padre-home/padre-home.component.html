@@ -1,15 +1,28 @@
 <div class="dashboard">
   <header class="dashboard-header">
     <h1>¡Hola, Estimado Padre de Familia!</h1>
-    <p>Aquí puedes estar al tanto de la conducta y la participación de tus hijos en la institución.</p>
+    <p>
+      Aquí puedes estar al tanto de la conducta y la participación de tus hijos en la institución.
+    </p>
   </header>
 
   <section class="kpi-grid" aria-label="Resumen de reportes familiares">
     <article class="kpi-card">
       <div class="kpi-icon kpi-icon--children" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"
+          />
         </svg>
       </div>
       <div class="kpi-content">
@@ -20,8 +33,17 @@
 
     <article class="kpi-card" [class.kpi-card--pending]="globalStats().pending > 0">
       <div class="kpi-icon kpi-icon--pending" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
           <path d="M12 9v4" />
           <path d="M12 17h.01" />
@@ -35,9 +57,20 @@
 
     <article class="kpi-card">
       <div class="kpi-icon kpi-icon--read" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+          />
           <path d="m9 12 2 2 4-4" />
         </svg>
       </div>
@@ -52,49 +85,75 @@
     <h2 id="children-title">Mis Hijos</h2>
 
     @if (children().length === 0) {
-    <p class="empty-state">No tienes estudiantes asociados a tu cuenta. Comunícate con la coordinación.</p>
+      <p class="empty-state">
+        No tienes estudiantes asociados a tu cuenta. Comunícate con la coordinación.
+      </p>
     } @else {
-    <div class="children-grid">
-      @for (child of children(); track child.id) {
-      <article class="child-card">
-        <div>
-          <div class="child-header">
-            <div class="child-avatar" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" />
-                <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
-              </svg>
-            </div>
+      <div class="children-grid">
+        @for (child of children(); track child.id) {
+          <article class="child-card">
             <div>
-              <h3>{{ child.firstName }} {{ child.lastName }}</h3>
-              <span>Código: {{ child.studentCode }}</span>
-            </div>
-          </div>
+              <div class="child-header">
+                <div class="child-avatar" aria-hidden="true">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"
+                    />
+                    <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
+                  </svg>
+                </div>
+                <div>
+                  <h3>{{ child.firstName }} {{ child.lastName }}</h3>
+                  <span>Código: {{ child.studentCode }}</span>
+                </div>
+              </div>
 
-          <div class="incident-summary" aria-label="Resumen de incidencias de {{ child.firstName }}">
-            <div class="incident-summary__item">
-              <span>Incidencias</span>
-              <strong>{{ child.totalIncidentsCount }}</strong>
+              <div
+                class="incident-summary"
+                aria-label="Resumen de incidencias de {{ child.firstName }}"
+              >
+                <div class="incident-summary__item">
+                  <span>Incidencias</span>
+                  <strong>{{ child.totalIncidentsCount }}</strong>
+                </div>
+                <div class="incident-summary__item incident-summary__item--pending">
+                  <span>Pendientes</span>
+                  <strong>{{ child.pendingIncidentsCount }}</strong>
+                </div>
+              </div>
             </div>
-            <div class="incident-summary__item incident-summary__item--pending">
-              <span>Pendientes</span>
-              <strong>{{ child.pendingIncidentsCount }}</strong>
-            </div>
-          </div>
-        </div>
 
-        <button class="report-button" type="button" (click)="viewReports(child.id)">
-          Ver Reportes detallados
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M5 12h14" />
-            <path d="m12 5 7 7-7 7" />
-          </svg>
-        </button>
-      </article>
-      }
-    </div>
+            <button class="report-button" type="button" (click)="viewReports(child.id)">
+              Ver Reportes detallados
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </button>
+          </article>
+        }
+      </div>
     }
   </section>
 </div>

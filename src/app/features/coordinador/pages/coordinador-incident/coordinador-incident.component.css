@@ -167,14 +167,20 @@
 }
 
 @keyframes fadeInBg {
-  from { background-color: rgba(15, 23, 42, 0); }
-  to { background-color: rgba(15, 23, 42, 0.45); }
+  from {
+    background-color: rgba(15, 23, 42, 0);
+  }
+  to {
+    background-color: rgba(15, 23, 42, 0.45);
+  }
 }
 
 .modal-card {
   background: white;
   border-radius: var(--radius-lg);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   width: 100%;
   max-width: 560px;
   display: flex;
@@ -317,7 +323,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */

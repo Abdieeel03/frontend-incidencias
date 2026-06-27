@@ -23,7 +23,7 @@ export type IncidenciaFormValue = {
   selector: 'app-incidencia-form',
   imports: [ReactiveFormsModule],
   templateUrl: './incidencia-form.component.html',
-  styleUrl: './incidencia-form.component.css'
+  styleUrl: './incidencia-form.component.css',
 })
 export class IncidenciaFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -47,10 +47,11 @@ export class IncidenciaFormComponent implements OnInit {
   alumnosFiltrados = computed(() => {
     const query = this.busquedaAlumno().toLowerCase().trim();
     if (query.length < 2) return this.alumnos(); // Show all students if query is short, since user wants combobox behavior
-    return this.alumnos().filter(a => 
-      a.nombre.toLowerCase().includes(query) ||
-      a.codigo.toLowerCase().includes(query) ||
-      a.dni.includes(query)
+    return this.alumnos().filter(
+      (a) =>
+        a.nombre.toLowerCase().includes(query) ||
+        a.codigo.toLowerCase().includes(query) ||
+        a.dni.includes(query)
     );
   });
 
@@ -64,7 +65,7 @@ export class IncidenciaFormComponent implements OnInit {
     this.loadClasses();
 
     // Watch class selection changes to load matching students
-    this.form.get('classId')?.valueChanges.subscribe(classId => {
+    this.form.get('classId')?.valueChanges.subscribe((classId) => {
       if (classId) {
         this.loadStudentsForClass(Number(classId));
       } else {
@@ -76,15 +77,15 @@ export class IncidenciaFormComponent implements OnInit {
     });
 
     // Check for query parameters to prepopulate the form
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (params['classId']) {
         const classId = Number(params['classId']);
         this.form.patchValue({ classId });
-        
+
         // After classes are loaded, it will load students. We need to select the student if studentDni is present.
         this.loadStudentsForClass(classId, () => {
           if (params['studentDni']) {
-            const student = this.alumnos().find(a => a.dni === params['studentDni']);
+            const student = this.alumnos().find((a) => a.dni === params['studentDni']);
             if (student) {
               this.seleccionarAlumno(student);
             }
@@ -105,7 +106,7 @@ export class IncidenciaFormComponent implements OnInit {
       classId: ['', Validators.required],
       incidentDate: [hoyFecha, Validators.required],
       incidentTime: [hoyHora, Validators.required],
-      description: ['', [Validators.required, Validators.maxLength(500)]]
+      description: ['', [Validators.required, Validators.maxLength(500)]],
     });
   }
 
@@ -114,7 +115,7 @@ export class IncidenciaFormComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.clases.set(res.data);
-          
+
           // If editing, load incident details after classes list is loaded
           const id = this.incidenciaId();
           if (id !== null) {
@@ -122,7 +123,7 @@ export class IncidenciaFormComponent implements OnInit {
           }
         }
       },
-      error: (err) => console.error('Error loading teacher classes:', err)
+      error: (err) => console.error('Error loading teacher classes:', err),
     });
   }
 
@@ -130,11 +131,11 @@ export class IncidenciaFormComponent implements OnInit {
     this.profesorApiService.getClassStudents(classId).subscribe({
       next: (res) => {
         if (res.success) {
-          const mapped = res.data.map(s => ({
+          const mapped = res.data.map((s) => ({
             id: s.id,
             nombre: `${s.firstName} ${s.lastName}`,
             codigo: s.studentCode,
-            dni: s.dni
+            dni: s.dni,
           }));
           this.alumnos.set(mapped);
           if (onLoaded) {
@@ -142,7 +143,7 @@ export class IncidenciaFormComponent implements OnInit {
           }
         }
       },
-      error: (err) => console.error('Error loading class students:', err)
+      error: (err) => console.error('Error loading class students:', err),
     });
   }
 
@@ -154,18 +155,18 @@ export class IncidenciaFormComponent implements OnInit {
           this.form.patchValue({
             title: incident.title,
             classId: incident.classId,
-            description: incident.description
+            description: incident.description,
           });
-          
+
           this.loadStudentsForClass(incident.classId, () => {
-            const student = this.alumnos().find(a => a.id === incident.studentId);
+            const student = this.alumnos().find((a) => a.id === incident.studentId);
             if (student) {
               this.seleccionarAlumno(student);
             }
           });
         }
       },
-      error: (err) => console.error('Error loading incident details for edit:', err)
+      error: (err) => console.error('Error loading incident details for edit:', err),
     });
   }
 
@@ -173,7 +174,7 @@ export class IncidenciaFormComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     this.busquedaAlumno.set(input.value);
     this.mostrarSugerencias.set(true);
-    
+
     if (!input.value) {
       this.alumnoSeleccionado.set(null);
       this.form.patchValue({ studentId: null });
@@ -208,7 +209,7 @@ export class IncidenciaFormComponent implements OnInit {
       title: val.title,
       studentId: val.studentId,
       classId: Number(val.classId),
-      description: val.description
+      description: val.description,
     };
 
     this.saved.emit(payload);
