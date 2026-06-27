@@ -1,18 +1,10 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IncidenciaFormComponent, type IncidenciaFormValue } from '../incidencia-form/incidencia-form.component';
+import { forkJoin } from 'rxjs';
 
-type IncidenciaReciente = {
-  id: number;
-  codigo: string;
-  estudiante: string;
-  titulo: string;
-  descripcion: string;
-  aula: string;
-  estado: 'abierta' | 'en_proceso' | 'resuelta' | 'archivada';
-  fecha: string;
-  hora: string;
-};
+import { ProfesorApiService } from '@features/profesor/services/profesor-api.service';
+import { IncidenciaFormComponent, type IncidenciaFormValue } from '../incidencia-form/incidencia-form.component';
+import { IncidentResponse } from '@core/auth/models/incident-response.model';
 
 type SalonResumen = {
   id: number;
@@ -28,71 +20,74 @@ type SalonResumen = {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent {
-  salones = signal<SalonResumen[]>([
-    { id: 1, nombre: '4to A', materia: 'Tutoría', estadoLabel: '2 Activas', estadoTipo: 'danger' },
-    { id: 2, nombre: '5to B', materia: 'Matemáticas', estadoLabel: '0 Activas', estadoTipo: 'info' },
-    { id: 3, nombre: '6to A', materia: 'Ciencias', estadoLabel: '3 Pendientes', estadoTipo: 'warning' }
-  ]);
+export class DashboardComponent implements OnInit {
+  private readonly profesorApiService = inject(ProfesorApiService);
 
-  incidencias = signal<IncidenciaReciente[]>([
-    {
-      id: 1,
-      codigo: '#INC-1042',
-      estudiante: 'Alejandro Ramírez',
-      titulo: 'Interrupción reiterada',
-      descripcion: 'El estudiante interrumpió de manera reiterada la clase de matemáticas levantándose de su asiento sin autorización.',
-      aula: '4to A - Matemáticas',
-      estado: 'abierta',
-      fecha: '22 Jun 2026',
-      hora: '10:30 AM'
-    },
-    {
-      id: 2,
-      codigo: '#INC-1041',
-      estudiante: 'Valentina Martínez',
-      titulo: 'Llegada tarde injustificada',
-      descripcion: 'Llegó al aula con 25 minutos de retraso sin justificación escrita.',
-      aula: '5to B - Inglés',
-      estado: 'en_proceso',
-      fecha: '22 Jun 2026',
-      hora: '08:15 AM'
-    },
-    {
-      id: 3,
-      codigo: '#INC-1040',
-      estudiante: 'Sebastián Fernández',
-      titulo: 'Discusión en clase',
-      descripcion: 'Mantuvo una discusión verbal subida de tono con otro compañero durante el trabajo en equipos.',
-      aula: '4to A - Tutoría',
-      estado: 'resuelta',
-      fecha: '21 Jun 2026',
-      hora: '11:45 AM'
-    }
-  ]);
+  salones = signal<SalonResumen[]>([]);
+  incidencias = signal<IncidentResponse[]>([]);
 
   busqueda = signal<string>('');
-  incidenciaSeleccionada = signal<IncidenciaReciente | null>(null);
+  incidenciaSeleccionada = signal<IncidentResponse | null>(null);
   mostrarFormModal = signal<boolean>(false);
   idParaEditar = signal<number | null>(null);
 
+  // Stats computed from active incidents list
+  readonly openCount = computed(() => this.incidencias().filter(i => i.status === 'NO_LEIDA').length);
+  readonly resolvedCount = computed(() => this.incidencias().filter(i => i.status === 'LEIDA').length);
+
   incidenciasFiltradas = computed(() => {
     const query = this.busqueda().toLowerCase().trim();
-    if (!query) return this.incidencias();
+    const list = this.incidencias();
+    if (!query) return list;
 
-    return this.incidencias().filter(inc => 
-      inc.estudiante.toLowerCase().includes(query) ||
-      inc.titulo.toLowerCase().includes(query) ||
-      inc.codigo.toLowerCase().includes(query)
+    return list.filter(inc => 
+      inc.studentName.toLowerCase().includes(query) ||
+      inc.title.toLowerCase().includes(query) ||
+      inc.id.toString().includes(query)
     );
   });
+
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void {
+    forkJoin({
+      classes: this.profesorApiService.getMyClasses(),
+      incidents: this.profesorApiService.getMyIncidents()
+    }).subscribe({
+      next: ({ classes, incidents }) => {
+        if (classes.success && incidents.success) {
+          const incidentsList = incidents.data;
+          
+          // Map classes for dashboard UI
+          const processedClasses = classes.data.map(c => {
+            const classIncidents = incidentsList.filter(i => i.classId === c.id);
+            const noLeidas = classIncidents.filter(i => i.status === 'NO_LEIDA').length;
+            return {
+              id: c.id,
+              nombre: c.name,
+              materia: 'Clase Asignada',
+              estadoLabel: noLeidas > 0 ? `${noLeidas} Sin Leer` : '0 Sin Leer',
+              estadoTipo: noLeidas > 0 ? 'danger' as const : 'info' as const
+            };
+          });
+          this.salones.set(processedClasses);
+
+          // Update incidents list
+          this.incidencias.set(incidentsList);
+        }
+      },
+      error: (err) => console.error('Error loading dashboard data:', err)
+    });
+  }
 
   onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.busqueda.set(input.value);
   }
 
-  abrirModal(incidencia: IncidenciaReciente): void {
+  abrirModal(incidencia: IncidentResponse): void {
     this.incidenciaSeleccionada.set(incidencia);
   }
 
@@ -122,23 +117,33 @@ export class DashboardComponent {
   }
 
   guardarIncidencia(datos: IncidenciaFormValue): void {
-    if (this.idParaEditar() !== null) {
-      alert('¡Incidencia actualizada correctamente (Mock)!');
+    const id = this.idParaEditar();
+    if (id !== null) {
+      this.profesorApiService.updateIncident(id, datos).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.loadData();
+            this.cerrarFormulario();
+          }
+        },
+        error: (err) => {
+          console.error('Error updating incident:', err);
+          alert(err.error?.message || 'Error al actualizar la incidencia.');
+        }
+      });
     } else {
-      alert('¡Incidencia registrada con éxito (Mock)!');
-      const nueva: IncidenciaReciente = {
-        id: this.incidencias().length + 1042,
-        codigo: `#INC-${this.incidencias().length + 1042}`,
-        estudiante: datos.studentId === 1 ? 'Alejandro Ramírez García' : 'Estudiante de Prueba',
-        titulo: datos.title ?? '',
-        descripcion: datos.description ?? '',
-        aula: '4to A - Matemáticas',
-        estado: 'abierta',
-        fecha: datos.incidentDate ?? '',
-        hora: datos.incidentTime ?? ''
-      };
-      this.incidencias.update(list => [nueva, ...list]);
+      this.profesorApiService.createIncident(datos).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.loadData();
+            this.cerrarFormulario();
+          }
+        },
+        error: (err) => {
+          console.error('Error creating incident:', err);
+          alert(err.error?.message || 'Error al crear la incidencia.');
+        }
+      });
     }
-    this.cerrarFormulario();
   }
 }

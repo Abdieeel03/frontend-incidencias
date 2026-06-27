@@ -193,3 +193,165 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-md);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content.modal-detalles {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-level-3);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg) var(--space-xl);
+  border-bottom: 1px solid var(--color-surface-variant);
+  background: var(--color-surface-container-lowest);
+}
+
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.modal-title {
+  font-size: var(--font-size-title-lg);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  color: var(--color-on-surface-variant);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-close:hover {
+  background: var(--color-surface-variant);
+  color: var(--color-on-surface);
+}
+
+.btn-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.modal-body {
+  padding: var(--space-xl);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.modal-search-bar {
+  margin-bottom: var(--space-sm);
+}
+
+.students-list {
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-surface-variant);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+}
+
+.students-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.student-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-variant);
+  transition: box-shadow 0.2s ease;
+}
+
+.student-card:hover {
+  box-shadow: var(--shadow-level-1);
+}
+
+.student-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.student-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: var(--font-size-body-sm);
+  text-transform: uppercase;
+}
+
+.student-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-name {
+  font-weight: 600;
+  color: var(--color-on-surface);
+  font-size: var(--font-size-body-md);
+}
+
+.student-dni {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-on-surface-variant);
+}
+
+.btn-crear-incidencia {
+  padding: 0.375rem 0.75rem;
+  font-size: var(--font-size-body-sm);
+}
+
+.empty-state {
+  padding: var(--space-xl);
+  text-align: center;
+  color: var(--color-on-surface-variant);
+  font-style: italic;
+}

@@ -1,5 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+
+import { PadreApiService } from '@features/padre/services/padre-api.service';
+import { IncidentResponse } from '@core/auth/models/incident-response.model';
 
 type Child = {
   readonly id: number;
@@ -8,67 +11,20 @@ type Child = {
   readonly studentCode: string;
 };
 
-type Incident = {
-  readonly id: number;
-  readonly studentId: number;
-  readonly title: string;
-  readonly description: string;
-  readonly status: 'NO_LEIDA' | 'LEIDA';
-  readonly incidentDate: string;
-};
-
-const MOCK_CHILDREN: readonly Child[] = [
-  { id: 1, firstName: 'Valentina', lastName: 'Ramirez', studentCode: 'EST-2026-014' },
-  { id: 2, firstName: 'Mateo', lastName: 'Ramirez', studentCode: 'EST-2026-029' },
-];
-
-const MOCK_INCIDENTS: readonly Incident[] = [
-  {
-    id: 101,
-    studentId: 1,
-    title: 'Llegada tarde a clase',
-    description: 'Se registró ingreso posterior al inicio de la primera hora académica.',
-    status: 'NO_LEIDA',
-    incidentDate: '2026-06-22T08:15:00',
-  },
-  {
-    id: 102,
-    studentId: 1,
-    title: 'Participación destacada',
-    description: 'Participó activamente en la actividad de convivencia del aula.',
-    status: 'LEIDA',
-    incidentDate: '2026-06-18T10:30:00',
-  },
-  {
-    id: 103,
-    studentId: 1,
-    title: 'Material incompleto',
-    description: 'No presentó el cuaderno requerido para la sesión.',
-    status: 'LEIDA',
-    incidentDate: '2026-06-12T09:40:00',
-  },
-  {
-    id: 201,
-    studentId: 2,
-    title: 'Reporte de conducta resuelto',
-    description: 'Se conversó con el estudiante y se cerró el seguimiento del caso.',
-    status: 'LEIDA',
-    incidentDate: '2026-06-20T11:00:00',
-  },
-];
-
 @Component({
   selector: 'app-padre-children-incidents',
   imports: [DatePipe],
   templateUrl: './padre-children-incidents.component.html',
   styleUrl: './padre-children-incidents.component.css',
 })
-export class PadreChildrenIncidentsComponent {
-  protected readonly children = signal(MOCK_CHILDREN);
-  protected readonly actionLoadingId = signal<number | null>(null);
-  protected readonly incidents = signal(MOCK_INCIDENTS);
+export class PadreChildrenIncidentsComponent implements OnInit {
+  private readonly padreApiService = inject(PadreApiService);
 
-  protected readonly selectedChildId = signal(this.getInitialChildId());
+  protected readonly children = signal<Child[]>([]);
+  protected readonly actionLoadingId = signal<number | null>(null);
+  protected readonly incidents = signal<IncidentResponse[]>([]);
+
+  protected readonly selectedChildId = signal<number | null>(null);
 
   protected readonly selectedChild = computed(() =>
     this.children().find((child) => child.id === this.selectedChildId()) ?? null
@@ -82,24 +38,69 @@ export class PadreChildrenIncidentsComponent {
       )
   );
 
+  ngOnInit(): void {
+    this.padreApiService.getMyChildren().subscribe({
+      next: (res) => {
+        if (res.success) {
+          const list = res.data.map(c => ({
+            id: c.id,
+            firstName: c.firstName,
+            lastName: c.lastName,
+            studentCode: c.studentCode
+          }));
+          this.children.set(list);
+
+          const initialId = this.getInitialChildId(list);
+          if (initialId !== null) {
+            this.selectedChildId.set(initialId);
+            this.loadIncidentsForChild(initialId);
+          }
+        }
+      },
+      error: (err) => console.error('Error loading children list:', err)
+    });
+  }
+
+  private loadIncidentsForChild(childId: number): void {
+    this.padreApiService.getIncidentsByStudent(childId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.incidents.set(res.data);
+        }
+      },
+      error: (err) => console.error('Error loading incidents for child:', err)
+    });
+  }
+
   protected selectChild(childId: number): void {
     this.selectedChildId.set(childId);
+    this.loadIncidentsForChild(childId);
   }
 
   protected markAsRead(incidentId: number): void {
     this.actionLoadingId.set(incidentId);
-    this.incidents.update((incidents) =>
-      incidents.map((incident) =>
-        incident.id === incidentId ? { ...incident, status: 'LEIDA' } : incident
-      )
-    );
-    this.actionLoadingId.set(null);
+    this.padreApiService.markAsRead(incidentId).subscribe({
+      next: (res) => {
+        this.actionLoadingId.set(null);
+        if (res.success) {
+          this.incidents.update((incidents) =>
+            incidents.map((incident) =>
+              incident.id === incidentId ? { ...incident, status: 'LEIDA' } : incident
+            )
+          );
+        }
+      },
+      error: (err) => {
+        this.actionLoadingId.set(null);
+        console.error('Error marking incident as read:', err);
+      }
+    });
   }
 
-  private getInitialChildId(): number | null {
+  private getInitialChildId(list: Child[]): number | null {
     const selectedStudentId = Number(globalThis.history?.state?.selectedStudentId);
-    const childExists = MOCK_CHILDREN.some((child) => child.id === selectedStudentId);
+    const childExists = list.some((child) => child.id === selectedStudentId);
 
-    return childExists ? selectedStudentId : MOCK_CHILDREN[0]?.id ?? null;
+    return childExists ? selectedStudentId : list[0]?.id ?? null;
   }
 }

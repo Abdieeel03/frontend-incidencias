@@ -459,3 +459,17 @@
         opacity: 1;
     }
 }
+
+.form-error-text {
+  color: var(--color-error);
+  font-size: var(--font-size-label-sm);
+  margin-top: var(--space-xs);
+  display: block;
+}
+
+.loading-state {
+  text-align: center;
+  padding: var(--space-xl);
+  font-weight: 600;
+  color: var(--color-primary);
+}

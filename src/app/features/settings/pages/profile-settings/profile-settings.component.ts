@@ -1,13 +1,8 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-type MockUser = {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  role: 'COORDINADOR' | 'PROFESOR' | 'PADRE';
-};
+import { AuthService } from '@core/auth/services/auth.service';
+import { SettingsApiService } from '@features/settings/services/settings-api.service';
 
 @Component({
   selector: 'app-profile-settings',
@@ -15,14 +10,9 @@ type MockUser = {
   templateUrl: './profile-settings.component.html',
   styleUrl: './profile-settings.component.css',
 })
-export class ProfileSettingsComponent {
-  protected readonly mockUser: MockUser = {
-    id: 1,
-    name: 'María González López',
-    username: 'MGONZALEZ',
-    email: 'maria.gonzalez@colegio.edu',
-    role: 'COORDINADOR',
-  };
+export class ProfileSettingsComponent implements OnInit {
+  protected readonly authService = inject(AuthService);
+  private readonly settingsApiService = inject(SettingsApiService);
 
   protected readonly oldPassword = signal('');
   protected readonly newPassword = signal('');
@@ -33,9 +23,19 @@ export class ProfileSettingsComponent {
 
   protected readonly profileImage = signal<string | null>(null);
 
+  protected readonly user = this.authService.user;
+
   protected readonly avatarInitials = computed(() => {
-    return this.mockUser.name.charAt(0).toUpperCase();
+    const name = this.user()?.name ?? '';
+    return name.charAt(0).toUpperCase();
   });
+
+  ngOnInit(): void {
+    const imageUrl = this.user()?.imageUrl;
+    if (imageUrl) {
+      this.profileImage.set(imageUrl);
+    }
+  }
 
   protected validatePasswordForm(): boolean {
     const errors: Record<string, string> = {};
@@ -68,16 +68,30 @@ export class ProfileSettingsComponent {
     this.isSavingPassword.set(true);
     this.passwordSuccess.set(false);
 
-    setTimeout(() => {
-      this.oldPassword.set('');
-      this.newPassword.set('');
-      this.confirmPassword.set('');
-      this.passwordErrors.set({});
-      this.passwordSuccess.set(true);
-      this.isSavingPassword.set(false);
-
-      setTimeout(() => this.passwordSuccess.set(false), 3000);
-    }, 1000);
+    this.settingsApiService.changePassword({
+      currentPassword: this.oldPassword(),
+      newPassword: this.newPassword(),
+      confirmPassword: this.confirmPassword()
+    }).subscribe({
+      next: (res) => {
+        this.isSavingPassword.set(false);
+        if (res.success) {
+          this.oldPassword.set('');
+          this.newPassword.set('');
+          this.confirmPassword.set('');
+          this.passwordErrors.set({});
+          this.passwordSuccess.set(true);
+          setTimeout(() => this.passwordSuccess.set(false), 3000);
+        } else {
+          this.passwordErrors.set({ form: res.message || 'Error al cambiar la contraseña.' });
+        }
+      },
+      error: (err) => {
+        this.isSavingPassword.set(false);
+        const errMsg = err.error?.message || 'Error al cambiar la contraseña. Verifique sus datos.';
+        this.passwordErrors.set({ form: errMsg });
+      }
+    });
   }
 
   protected onImageSelected(event: Event): void {
@@ -92,7 +106,35 @@ export class ProfileSettingsComponent {
 
     const reader = new FileReader();
     reader.onload = () => {
-      this.profileImage.set(reader.result as string);
+      const dataUrl = reader.result as string;
+      
+      // Call API to persist own profile image
+      this.settingsApiService.updateProfile({
+        email: this.user()?.email || '',
+        imageUrl: dataUrl
+      }).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.profileImage.set(res.data.imageUrl || dataUrl);
+            
+            // Update auth session image so sidebar updates immediately
+            const session = this.authService.session();
+            if (session) {
+              this.authService.setSession({
+                ...session,
+                user: {
+                  ...session.user,
+                  imageUrl: res.data.imageUrl || dataUrl
+                }
+              });
+            }
+          }
+        },
+        error: (err) => {
+          console.error('Error updating profile picture:', err);
+          alert(err.error?.message || 'Error al guardar la imagen de perfil.');
+        }
+      });
     };
     reader.readAsDataURL(file);
   }

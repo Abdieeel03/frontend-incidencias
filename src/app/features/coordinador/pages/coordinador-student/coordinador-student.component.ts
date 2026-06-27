@@ -1,23 +1,26 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 
-import  { StudentResponse } from '../../models/student-response.model';
-import { UserResponse } from '../../models/user-response.model'
-import { IncidentResponse } from '../../models/incident-response.model'
+import { CoordinadorApiService } from '../../services/coordinador-api.service';
+import { StudentResponse, CreateStudentRequest, UpdateStudentRequest } from '@core/auth/models/student-response.model';
+import { UserResponse } from '@core/auth/models/user-response.model';
 
-export type Student = StudentResponse & {
-  isDeleted: boolean;
-}
+export type Student = StudentResponse;
 
 export type Parent = UserResponse;
-  
 
-export type StudentDetail = Student & {
+export type StudentDetail = StudentResponse & {
   parentEmail: string;
-  parentPhone: string;
   className: string;
-  incidents: (IncidentResponse & { status: 'NO_LEIDA' | 'LEIDA' })[];
+  incidents: {
+    id: number;
+    title: string;
+    description: string;
+    incidentDate: string;
+    status: 'NO_LEIDA' | 'LEIDA';
+  }[];
 };
 
 @Component({
@@ -26,8 +29,9 @@ export type StudentDetail = Student & {
   templateUrl: './coordinador-student.component.html',
   styleUrl: './coordinador-student.component.css',
 })
-export class CoordinadorStudentComponent {
+export class CoordinadorStudentComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly coordinadorApiService = inject(CoordinadorApiService);
 
   // Writable Signals
   protected readonly isLoading = signal(false);
@@ -43,7 +47,6 @@ export class CoordinadorStudentComponent {
 
   // Data Signals
   protected readonly students = signal<Student[]>([]);
-
   protected readonly parents = signal<Parent[]>([]);
 
   // Selections & Filters
@@ -64,14 +67,8 @@ export class CoordinadorStudentComponent {
   // Filtered Students
   protected readonly filteredStudents = computed(() => {
     const term = this.search().trim().toLowerCase();
-    const showDel = this.showDeleted();
 
     return this.students().filter((student) => {
-      // Filtrado por estado de soft-delete
-      if (student.isDeleted !== showDel) {
-        return false;
-      }
-
       // Filtrado por término de búsqueda
       if (!term) {
         return true;
@@ -87,6 +84,44 @@ export class CoordinadorStudentComponent {
     });
   });
 
+  ngOnInit(): void {
+    this.loadStudents();
+    this.loadParents();
+  }
+
+  protected loadStudents(): void {
+    this.isLoading.set(true);
+    const request$ = this.showDeleted()
+      ? this.coordinadorApiService.getDeletedStudents()
+      : this.coordinadorApiService.getStudents();
+
+    request$.subscribe({
+      next: (res) => {
+        this.isLoading.set(false);
+        if (res.success) {
+          this.students.set(res.data);
+        }
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        console.error('Error loading students:', err);
+      },
+    });
+  }
+
+  private loadParents(): void {
+    this.coordinadorApiService.getParents().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.parents.set(res.data);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading parents:', err);
+      },
+    });
+  }
+
   // UI Handlers
   protected onSearchInput(event: Event): void {
     const target = event.target as HTMLInputElement;
@@ -96,6 +131,7 @@ export class CoordinadorStudentComponent {
   protected toggleShowDeleted(event: Event): void {
     const target = event.target as HTMLInputElement;
     this.showDeleted.set(target.checked);
+    this.loadStudents();
   }
 
   protected openCreateForm(): void {
@@ -119,18 +155,37 @@ export class CoordinadorStudentComponent {
     this.isDetailLoading.set(true);
     this.isDetailOpen.set(true);
 
-    // Simulamos carga asíncrona de ficha de estudiante
-    setTimeout(() => {
-      const parent = this.parents().find((p) => p.id === student.parentId);
-      this.detailStudent.set({
-        ...student,
-        parentEmail: parent?.email ?? '',
-        parentPhone: '',
-        className: '',
-        incidents: [],
-      });
-      this.isDetailLoading.set(false);
-    }, 400);
+    forkJoin({
+      details: this.coordinadorApiService.getStudentDetails(student.id),
+      incidents: this.coordinadorApiService.getIncidentsByStudent(student.id),
+    }).subscribe({
+      next: ({ details, incidents }) => {
+        this.isDetailLoading.set(false);
+        if (details.success && incidents.success) {
+          const parent = this.parents().find((p) => p.id === student.parentId);
+          const className = details.data.classes?.map((c) => c.name).join(', ') || 'Sin sección';
+          const mappedIncidents = incidents.data.map((i) => ({
+            id: i.id,
+            title: i.title,
+            description: i.description,
+            incidentDate: i.incidentDate,
+            status: i.status as 'NO_LEIDA' | 'LEIDA',
+          }));
+
+          this.detailStudent.set({
+            ...student,
+            parentEmail: parent?.email ?? '—',
+            className,
+            incidents: mappedIncidents,
+          });
+        }
+      },
+      error: (err) => {
+        this.isDetailLoading.set(false);
+        console.error('Error loading student details:', err);
+        alert(err.error?.message || 'Error al cargar los detalles del estudiante.');
+      },
+    });
   }
 
   protected openDeleteConfirm(student: Student): void {
@@ -163,50 +218,54 @@ export class CoordinadorStudentComponent {
     }
 
     this.isSaving.set(true);
+    const formValue = this.studentForm.getRawValue();
+    const toEdit = this.studentToEdit();
 
-    // Simular guardado
-    setTimeout(() => {
-      const formValue = this.studentForm.getRawValue();
-      const parent = this.parents().find((p) => p.id === formValue.parentId);
-      const parentName = parent?.name ?? '—';
-
-      const toEdit = this.studentToEdit();
-      if (toEdit) {
-        // Modo Edición
-        this.students.update((list) =>
-          list.map((s) =>
-            s.id === toEdit.id
-              ? {
-                  ...s,
-                  firstName: formValue.firstName,
-                  lastName: formValue.lastName,
-                  dni: formValue.dni,
-                  parentId: formValue.parentId!,
-                  parentName,
-                }
-              : s
-          )
-        );
-      } else {
-        // Modo Registro
-        const nextId = Math.max(...this.students().map((s) => s.id), 0) + 1;
-        const codeNum = String(nextId).padStart(3, '0');
-        const newStudent: Student = {
-          id: nextId,
-          firstName: formValue.firstName,
-          lastName: formValue.lastName,
-          dni: formValue.dni,
-          studentCode: `EST${codeNum}`,
-          parentId: formValue.parentId!,
-          parentName,
-          isDeleted: false,
-        };
-        this.students.update((list) => [newStudent, ...list]);
-      }
-
-      this.isSaving.set(false);
-      this.isFormOpen.set(false);
-    }, 500);
+    if (toEdit) {
+      // Modo Edición
+      const request: UpdateStudentRequest = {
+        firstName: formValue.firstName,
+        lastName: formValue.lastName,
+        dni: formValue.dni,
+        parentId: formValue.parentId!,
+      };
+      this.coordinadorApiService.updateStudent(toEdit.id, request).subscribe({
+        next: (res) => {
+          this.isSaving.set(false);
+          if (res.success) {
+            this.isFormOpen.set(false);
+            this.loadStudents();
+          }
+        },
+        error: (err) => {
+          this.isSaving.set(false);
+          console.error('Error updating student:', err);
+          alert(err.error?.message || 'Error al actualizar el estudiante.');
+        },
+      });
+    } else {
+      // Modo Registro
+      const request: CreateStudentRequest = {
+        firstName: formValue.firstName,
+        lastName: formValue.lastName,
+        dni: formValue.dni,
+        parentId: formValue.parentId!,
+      };
+      this.coordinadorApiService.createStudent(request).subscribe({
+        next: (res) => {
+          this.isSaving.set(false);
+          if (res.success) {
+            this.isFormOpen.set(false);
+            this.loadStudents();
+          }
+        },
+        error: (err) => {
+          this.isSaving.set(false);
+          console.error('Error creating student:', err);
+          alert(err.error?.message || 'Error al registrar el estudiante.');
+        },
+      });
+    }
   }
 
   protected handleDelete(): void {
@@ -214,13 +273,20 @@ export class CoordinadorStudentComponent {
     if (!student) return;
 
     this.isActionLoading.set(true);
-    setTimeout(() => {
-      this.students.update((list) =>
-        list.map((s) => (s.id === student.id ? { ...s, isDeleted: true } : s))
-      );
-      this.isActionLoading.set(false);
-      this.isDeleteOpen.set(false);
-    }, 450);
+    this.coordinadorApiService.deleteStudent(student.id).subscribe({
+      next: (res) => {
+        this.isActionLoading.set(false);
+        if (res.success) {
+          this.isDeleteOpen.set(false);
+          this.loadStudents();
+        }
+      },
+      error: (err) => {
+        this.isActionLoading.set(false);
+        console.error('Error deleting student:', err);
+        alert(err.error?.message || 'Error al retirar el estudiante.');
+      },
+    });
   }
 
   protected handleRestore(): void {
@@ -228,12 +294,19 @@ export class CoordinadorStudentComponent {
     if (!student) return;
 
     this.isActionLoading.set(true);
-    setTimeout(() => {
-      this.students.update((list) =>
-        list.map((s) => (s.id === student.id ? { ...s, isDeleted: false } : s))
-      );
-      this.isActionLoading.set(false);
-      this.isRestoreOpen.set(false);
-    }, 450);
+    this.coordinadorApiService.restoreStudent(student.id).subscribe({
+      next: (res) => {
+        this.isActionLoading.set(false);
+        if (res.success) {
+          this.isRestoreOpen.set(false);
+          this.loadStudents();
+        }
+      },
+      error: (err) => {
+        this.isActionLoading.set(false);
+        console.error('Error restoring student:', err);
+        alert(err.error?.message || 'Error al restaurar el estudiante.');
+      },
+    });
   }
 }

@@ -12,7 +12,7 @@
       </h3>
 
       <div class="profile-header">
-        <div class="profile-avatar" [class.profile-avatar--has-image]="profileImage()">
+        <div class="profile-avatar" [class.profile-avatar--has-image]="profileImage()" [style.background-image]="profileImage() ? 'url(' + profileImage() + ')' : null">
           @if (!profileImage()) {
           <span class="profile-avatar__initials">{{ avatarInitials() }}</span>
           }
@@ -28,19 +28,19 @@
         <input type="file" id="profile-image-input" accept="image/*" (change)="onImageSelected($event)" hidden />
 
         <div class="profile-info">
-          <h4 class="profile-name">{{ mockUser.name }}</h4>
-          <span class="profile-role">{{ mockUser.role }}</span>
+          <h4 class="profile-name">{{ user()?.name }}</h4>
+          <span class="profile-role">{{ user()?.role }}</span>
         </div>
       </div>
 
       <div class="profile-details">
         <div class="profile-detail">
           <span class="profile-detail__label">Nombre de Usuario</span>
-          <p class="profile-detail__value">{{ mockUser.username }}</p>
+          <p class="profile-detail__value">{{ user()?.username }}</p>
         </div>
         <div class="profile-detail">
           <span class="profile-detail__label">Correo Electrónico</span>
-          <p class="profile-detail__value">{{ mockUser.email }}</p>
+          <p class="profile-detail__value">{{ user()?.email }}</p>
         </div>
         <div class="profile-notice">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -73,6 +73,12 @@
           <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
         Contraseña actualizada correctamente
+      </div>
+      }
+
+      @if (passwordErrors()['form']) {
+      <div class="form-error form-error--block">
+        {{ passwordErrors()['form'] }}
       </div>
       }
 
