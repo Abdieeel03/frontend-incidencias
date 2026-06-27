@@ -2,16 +2,12 @@ import { computed, inject, Service, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
-import { environment } from '@env/environment';
+import { environment } from '@app/environments/environment';
 import { ApiResponse } from '../models/api-response.model';
 import { AuthResponse } from '../models/auth-response.model';
 import { AuthSession } from '../models/auth-session.model';
 import { UserRole, USER_ROLES } from '../models/user-role.model';
-import {
-  LoginRequest,
-  RegisterRequest,
-  ResetPasswordRequest,
-} from '../models/auth-request.model';
+import { LoginRequest, RegisterRequest, ResetPasswordRequest } from '../models/auth-request.model';
 
 @Service()
 export class AuthService {
@@ -35,31 +31,40 @@ export class AuthService {
   }
 
   login(request: LoginRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${environment.apiUrl}/auth/login`, request).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.setSessionFromAuthResponse(response.data);
-        }
-      })
-    );
+    return this.http
+      .post<ApiResponse<AuthResponse>>(`${environment.apiUrl}/auth/login`, request)
+      .pipe(
+        tap((response) => {
+          if (response.success && response.data) {
+            this.setSessionFromAuthResponse(response.data);
+          }
+        })
+      );
   }
 
   register(request: RegisterRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${environment.apiUrl}/auth/register`, request).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.setSessionFromAuthResponse(response.data);
-        }
-      })
-    );
+    return this.http
+      .post<ApiResponse<AuthResponse>>(`${environment.apiUrl}/auth/register`, request)
+      .pipe(
+        tap((response) => {
+          if (response.success && response.data) {
+            this.setSessionFromAuthResponse(response.data);
+          }
+        })
+      );
   }
 
   forgotPassword(email: string): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${environment.apiUrl}/auth/forgot-password`, { email });
+    return this.http.post<ApiResponse<void>>(`${environment.apiUrl}/auth/forgot-password`, {
+      email,
+    });
   }
 
   verifyResetCode(email: string, code: string): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${environment.apiUrl}/auth/verify-reset-code`, { email, code });
+    return this.http.post<ApiResponse<void>>(`${environment.apiUrl}/auth/verify-reset-code`, {
+      email,
+      code,
+    });
   }
 
   resetPassword(request: ResetPasswordRequest): Observable<ApiResponse<void>> {

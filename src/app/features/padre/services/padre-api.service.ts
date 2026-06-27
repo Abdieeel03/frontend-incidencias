@@ -2,7 +2,7 @@ import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { environment } from '@env/environment';
+import { environment } from '@app/environments/environment';
 import { ApiResponse } from '@core/auth/models/api-response.model';
 import { StudentResponse, StudentDetailResponse } from '@core/auth/models/student-response.model';
 import { IncidentResponse } from '@core/auth/models/incident-response.model';
@@ -18,12 +18,16 @@ export class PadreApiService {
   }
 
   getStudentDetails(studentId: number): Observable<ApiResponse<StudentDetailResponse>> {
-    return this.http.get<ApiResponse<StudentDetailResponse>>(`${this.baseUrl}/students/${studentId}/details`);
+    return this.http.get<ApiResponse<StudentDetailResponse>>(
+      `${this.baseUrl}/students/${studentId}/details`
+    );
   }
 
   // ─── INCIDENCIAS ─────────────────────────────────────────────────────
   getIncidentsByStudent(studentId: number): Observable<ApiResponse<IncidentResponse[]>> {
-    return this.http.get<ApiResponse<IncidentResponse[]>>(`${this.baseUrl}/incidents/student/${studentId}`);
+    return this.http.get<ApiResponse<IncidentResponse[]>>(
+      `${this.baseUrl}/incidents/student/${studentId}`
+    );
   }
 
   getIncidentById(id: number): Observable<ApiResponse<IncidentResponse>> {

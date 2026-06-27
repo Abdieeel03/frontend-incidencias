@@ -2,7 +2,7 @@ import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { environment } from '@env/environment';
+import { environment } from '@app/environments/environment';
 import { ApiResponse } from '@core/auth/models/api-response.model';
 import { SchoolClassResponse } from '@core/auth/models/school-class-response.model';
 import { StudentResponse } from '@core/auth/models/student-response.model';
@@ -27,7 +27,9 @@ export class ProfesorApiService {
   }
 
   getClassStudents(classId: number): Observable<ApiResponse<StudentResponse[]>> {
-    return this.http.get<ApiResponse<StudentResponse[]>>(`${this.baseUrl}/classes/${classId}/students`);
+    return this.http.get<ApiResponse<StudentResponse[]>>(
+      `${this.baseUrl}/classes/${classId}/students`
+    );
   }
 
   // ─── INCIDENCIAS ─────────────────────────────────────────────────────
@@ -43,7 +45,10 @@ export class ProfesorApiService {
     return this.http.post<ApiResponse<IncidentResponse>>(`${this.baseUrl}/incidents`, request);
   }
 
-  updateIncident(id: number, request: UpdateIncidentRequest): Observable<ApiResponse<IncidentResponse>> {
+  updateIncident(
+    id: number,
+    request: UpdateIncidentRequest
+  ): Observable<ApiResponse<IncidentResponse>> {
     return this.http.put<ApiResponse<IncidentResponse>>(`${this.baseUrl}/incidents/${id}`, request);
   }
 
@@ -52,7 +57,10 @@ export class ProfesorApiService {
   }
 
   restoreIncident(id: number): Observable<ApiResponse<IncidentResponse>> {
-    return this.http.put<ApiResponse<IncidentResponse>>(`${this.baseUrl}/incidents/restore/${id}`, {});
+    return this.http.put<ApiResponse<IncidentResponse>>(
+      `${this.baseUrl}/incidents/restore/${id}`,
+      {}
+    );
   }
 
   getDeletedIncidents(): Observable<ApiResponse<IncidentResponse[]>> {

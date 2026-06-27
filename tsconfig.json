@@ -27,7 +27,7 @@
         "./src/app/features/*"
       ],
       "@env/*": [
-        "./src/environments/*"
+        "./src/app/environments/*"
       ],
       "@layouts/*": [
         "./src/app/layouts/*"

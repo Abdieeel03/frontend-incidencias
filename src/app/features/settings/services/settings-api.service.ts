@@ -2,7 +2,7 @@ import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { environment } from '@env/environment';
+import { environment } from '@app/environments/environment';
 import { ApiResponse } from '@core/auth/models/api-response.model';
 import { UserResponse, UpdateUserRequest } from '@core/auth/models/user-response.model';
 import { ChangePasswordRequest } from '@core/auth/models/change-password.model';
@@ -18,5 +18,9 @@ export class SettingsApiService {
 
   changePassword(request: ChangePasswordRequest): Observable<ApiResponse<void>> {
     return this.http.patch<ApiResponse<void>>(`${this.baseUrl}/users/me/change-password`, request);
+  }
+
+  updateImageUrl(imageUrl: string): Observable<ApiResponse<UserResponse>> {
+    return this.http.patch<ApiResponse<UserResponse>>(`${this.baseUrl}/users/me/image-url`, { imageUrl });
   }
 }
