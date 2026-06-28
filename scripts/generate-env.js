@@ -6,22 +6,22 @@ const root = path.join(__dirname, '..');
 const envPath = path.join(root, '.env');
 const envExamplePath = path.join(root, '.env.example');
 
-let env;
+let fileEnv = {};
 
 if (fs.existsSync(envPath)) {
-  env = dotenv.parse(fs.readFileSync(envPath));
+  fileEnv = dotenv.parse(fs.readFileSync(envPath));
   console.log('Using .env file');
 } else if (fs.existsSync(envExamplePath)) {
-  env = dotenv.parse(fs.readFileSync(envExamplePath));
+  fileEnv = dotenv.parse(fs.readFileSync(envExamplePath));
   console.log('.env not found, falling back to .env.example');
 } else {
-  env = {};
   console.log('No .env or .env.example found, using defaults');
 }
 
-const supabaseUrl = env.SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseAnonKey = env.SUPABASE_ANON_KEY || 'placeholder-key';
-const apiUrl = env.API_URL || 'http://localhost:8080/api';
+// process.env takes precedence (Vercel injects vars this way)
+const supabaseUrl = process.env.SUPABASE_URL || fileEnv.SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || fileEnv.SUPABASE_ANON_KEY || 'placeholder-key';
+const apiUrl = process.env.API_URL || fileEnv.API_URL || 'http://localhost:8080/api';
 
 const environmentContent = `export const environment = {
   production: false,
@@ -36,7 +36,7 @@ const environmentContent = `export const environment = {
 
 const environmentProdContent = `export const environment = {
   production: true,
-  apiUrl: '/api',
+  apiUrl: '${apiUrl}',
   supabase: {
     url: '${supabaseUrl}',
     anonKey: '${supabaseAnonKey}',
