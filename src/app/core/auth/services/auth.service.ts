@@ -10,10 +10,12 @@ import { AuthUser } from '../models/auth-user.model';
 import { UserResponse } from '../models/user-response.model';
 import { UserRole, USER_ROLES } from '../models/user-role.model';
 import { LoginRequest, RegisterRequest, ResetPasswordRequest } from '../models/auth-request.model';
+import { CacheService } from './cache.service';
 
 @Service()
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly cacheService = inject(CacheService);
   private readonly sessionState = signal<AuthSession | null>(null);
 
   readonly session = this.sessionState.asReadonly();
@@ -134,6 +136,7 @@ export class AuthService {
   clearSession(): void {
     this.sessionState.set(null);
     localStorage.removeItem('rise_session');
+    this.cacheService.clearAll();
   }
 
   hasAnyRole(roles: readonly UserRole[]): boolean {

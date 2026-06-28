@@ -53,5 +53,6 @@ Thumbs.db
 .env
 
 # Generated environment files (created by scripts/generate-env.js)
+.env
 src/app/environments/environment.ts
 src/app/environments/environment.prod.ts

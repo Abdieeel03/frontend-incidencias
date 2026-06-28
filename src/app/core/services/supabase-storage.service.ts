@@ -26,9 +26,8 @@ export class SupabaseStorageService {
         .then(({ error }: { error: { message: string } | null }) => {
           if (error) throw new Error(error.message);
 
-          return this.client.storage
-            .from(environment.supabase.bucket)
-            .getPublicUrl(filePath).data.publicUrl;
+          return this.client.storage.from(environment.supabase.bucket).getPublicUrl(filePath).data
+            .publicUrl;
         })
     );
   }

@@ -5,7 +5,6 @@
   padding: var(--space-page-mobile);
 }
 
-
 .incidencias-title {
   color: var(--color-primary);
   font-size: var(--font-size-headline-lg);
@@ -17,7 +16,6 @@
   color: var(--color-on-surface-variant);
   font-size: var(--font-size-body-md);
 }
-
 
 .text-warning {
   color: var(--color-secondary) !important;
@@ -65,7 +63,6 @@
   color: var(--color-on-surface-variant);
 }
 
-
 .table-container {
   background: var(--color-surface-container-lowest);
   border: var(--border-subtle);
@@ -95,7 +92,6 @@
   margin-right: var(--space-xs);
   letter-spacing: 0.05em;
 }
-
 
 .chip {
   border: 1px solid var(--color-outline-variant);
@@ -141,7 +137,6 @@
   width: 1rem;
   height: 1rem;
 }
-
 
 .table-search-bar {
   padding: var(--space-md) var(--space-lg);
@@ -246,7 +241,6 @@
   color: var(--color-on-surface-variant);
 }
 
-
 .table-pagination {
   display: flex;
   justify-content: space-between;
@@ -270,7 +264,6 @@
   padding: 0 var(--space-sm);
   font-size: var(--font-size-label-md);
 }
-
 
 .modal-overlay {
   position: fixed;
@@ -391,17 +384,25 @@
   justify-content: flex-end;
 }
 
-
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
-
 
 @media (min-width: 768px) {
   .incidencias-page {

@@ -48,7 +48,9 @@
               @if (registerForm.controls.dni.errors?.['required']) {
                 <span class="auth-field-error">El DNI es obligatorio</span>
               } @else if (registerForm.controls.dni.errors?.['pattern']) {
-                <span class="auth-field-error">El DNI debe tener exactamente 8 dígitos numéricos</span>
+                <span class="auth-field-error"
+                  >El DNI debe tener exactamente 8 dígitos numéricos</span
+                >
               }
             }
           </div>
@@ -91,11 +93,7 @@
             }
           </div>
 
-          <app-auth-submit-button
-            type="submit"
-            label="Crear cuenta"
-            [disabled]="isLoading()"
-          />
+          <app-auth-submit-button type="submit" label="Crear cuenta" [disabled]="isLoading()" />
         </form>
 
         <p class="auth-switch">

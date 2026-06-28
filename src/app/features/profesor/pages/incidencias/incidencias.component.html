@@ -1,8 +1,9 @@
 <div class="incidencias-page">
-  
   <header class="incidencias-header">
     <h1 class="incidencias-title">Gestión de Incidencias</h1>
-    <p class="incidencias-subtitle">Monitorea, filtra y actualiza el estado de los reportes disciplinarios y de seguridad.</p>
+    <p class="incidencias-subtitle">
+      Monitorea, filtra y actualiza el estado de los reportes disciplinarios y de seguridad.
+    </p>
   </header>
 
   <div class="metrics-grid">
@@ -25,25 +26,54 @@
       <div class="metric-value-container">
         <span class="metric-value text-success">{{ resolvedCount() }}</span>
         <span class="metric-subtext">
-          {{ (resolvedCount() / (incidencias().length || 1) * 100) | number:'1.0-0' }}% Tasa de lectura
+          {{ (resolvedCount() / (incidencias().length || 1)) * 100 | number: '1.0-0' }}% Tasa de
+          lectura
         </span>
       </div>
     </div>
   </div>
 
   <div class="app-card table-container">
-    
     <div class="table-header-actions">
       <div class="filter-chips">
         <span class="filter-label">FILTRAR POR:</span>
-        <button class="chip" [class.chip--active]="filtroEstado() === 'todos'" (click)="setFiltro('todos')">Todos</button>
-        <button class="chip" [class.chip--active]="filtroEstado() === 'NO_LEIDA'" (click)="setFiltro('NO_LEIDA')">Sin Leer</button>
-        <button class="chip" [class.chip--active]="filtroEstado() === 'LEIDA'" (click)="setFiltro('LEIDA')">Leídas</button>
+        <button
+          class="chip"
+          [class.chip--active]="filtroEstado() === 'todos'"
+          (click)="setFiltro('todos')"
+        >
+          Todos
+        </button>
+        <button
+          class="chip"
+          [class.chip--active]="filtroEstado() === 'NO_LEIDA'"
+          (click)="setFiltro('NO_LEIDA')"
+        >
+          Sin Leer
+        </button>
+        <button
+          class="chip"
+          [class.chip--active]="filtroEstado() === 'LEIDA'"
+          (click)="setFiltro('LEIDA')"
+        >
+          Leídas
+        </button>
       </div>
 
       <div class="table-header-buttons">
-        <button class="app-button app-button--primary btn-new-incident-list" type="button" (click)="abrirFormularioCrear()">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="icon-btn">
+        <button
+          class="app-button app-button--primary btn-new-incident-list"
+          type="button"
+          (click)="abrirFormularioCrear()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2.5"
+            stroke="currentColor"
+            class="icon-btn"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
           Registrar Incidencia
@@ -53,13 +83,24 @@
 
     <div class="table-search-bar">
       <div class="search-input-wrapper">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon-search">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.637 10.637Z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+          class="icon-search"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.637 10.637Z"
+          />
         </svg>
-        <input 
-          type="text" 
-          placeholder="Buscar estudiantes o ID de incidencia..." 
-          class="app-input search-input" 
+        <input
+          type="text"
+          placeholder="Buscar estudiantes o ID de incidencia..."
+          class="app-input search-input"
           [value]="busqueda()"
           (input)="onSearch($event)"
           aria-label="Buscar incidencia"
@@ -85,25 +126,42 @@
               <td class="col-code">#INC-{{ incidencia.id }}</td>
               <td class="col-student">
                 <div class="student-avatar-container">
-                  <div class="student-avatar">{{ incidencia.studentName.substring(0, 2).toUpperCase() }}</div>
+                  <div class="student-avatar">
+                    {{ incidencia.studentName.substring(0, 2).toUpperCase() }}
+                  </div>
                   <span class="student-name">{{ incidencia.studentName }}</span>
                 </div>
               </td>
               <td class="col-title">{{ incidencia.title }}</td>
               <td class="col-status">
-                <span class="app-chip" [class]="'app-chip--' + (incidencia.status === 'NO_LEIDA' ? 'critical' : 'resolved')">
+                <span
+                  class="app-chip"
+                  [class]="
+                    'app-chip--' + (incidencia.status === 'NO_LEIDA' ? 'critical' : 'resolved')
+                  "
+                >
                   {{ incidencia.status === 'NO_LEIDA' ? 'Sin Leer' : 'Leída' }}
                 </span>
               </td>
               <td class="col-date">{{ incidencia.incidentDate }}</td>
               <td class="col-actions">
-                <button type="button" class="btn-action-ghost" (click)="abrirModal(incidencia)">Ver</button>
-                <button type="button" class="btn-action-ghost text-primary" (click)="abrirFormularioEditar(incidencia.id)">Editar</button>
+                <button type="button" class="btn-action-ghost" (click)="abrirModal(incidencia)">
+                  Ver
+                </button>
+                <button
+                  type="button"
+                  class="btn-action-ghost text-primary"
+                  (click)="abrirFormularioEditar(incidencia.id)"
+                >
+                  Editar
+                </button>
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="6" class="table-empty-state">No se encontraron incidencias que coincidan con la búsqueda.</td>
+              <td colspan="6" class="table-empty-state">
+                No se encontraron incidencias que coincidan con la búsqueda.
+              </td>
             </tr>
           }
         </tbody>
@@ -111,19 +169,32 @@
     </div>
 
     <div class="table-pagination">
-      <span class="pagination-info">Mostrando {{ incidenciasFiltradas().length }} de {{ incidenciasFiltradas().length }} registros</span>
+      <span class="pagination-info"
+        >Mostrando {{ incidenciasFiltradas().length }} de
+        {{ incidenciasFiltradas().length }} registros</span
+      >
     </div>
   </div>
 
   @if (incidenciaSeleccionada(); as inc) {
-    <div class="modal-overlay" role="button" tabindex="0" aria-label="Cerrar modal" (click)="closeModalFromOverlay($event)" (keydown.enter)="closeModalFromOverlay($event)" (keydown.space)="closeModalFromOverlay($event)">
+    <div
+      class="modal-overlay"
+      role="button"
+      tabindex="0"
+      aria-label="Cerrar modal"
+      (click)="closeModalFromOverlay($event)"
+      (keydown.enter)="closeModalFromOverlay($event)"
+      (keydown.space)="closeModalFromOverlay($event)"
+    >
       <div class="app-card modal-card" role="dialog" aria-modal="true">
         <header class="modal-card__header">
           <div class="modal-title-container">
             <span class="modal-badge-id">#INC-{{ inc.id }}</span>
             <h2 class="modal-title">{{ inc.title }}</h2>
           </div>
-          <button type="button" class="btn-close" (click)="cerrarModal()" aria-label="Cerrar modal">×</button>
+          <button type="button" class="btn-close" (click)="cerrarModal()" aria-label="Cerrar modal">
+            ×
+          </button>
         </header>
 
         <div class="modal-card__body">
@@ -141,7 +212,10 @@
           </div>
           <div class="detail-row">
             <span class="detail-label">Estado</span>
-            <span class="app-chip" [class]="'app-chip--' + (inc.status === 'NO_LEIDA' ? 'critical' : 'resolved')">
+            <span
+              class="app-chip"
+              [class]="'app-chip--' + (inc.status === 'NO_LEIDA' ? 'critical' : 'resolved')"
+            >
               {{ inc.status === 'NO_LEIDA' ? 'Sin Leer' : 'Leída' }}
             </span>
           </div>
@@ -152,17 +226,20 @@
         </div>
 
         <footer class="modal-card__footer">
-          <button class="app-button app-button--secondary" type="button" (click)="cerrarModal()">Cerrar</button>
+          <button class="app-button app-button--secondary" type="button" (click)="cerrarModal()">
+            Cerrar
+          </button>
         </footer>
       </div>
     </div>
   }
 
   @if (mostrarFormModal()) {
-    <app-incidencia-form 
-      [incidenciaId]="idParaEditar()" 
-      (closed)="cerrarFormulario()" 
-      (saved)="guardarIncidencia($event)">
+    <app-incidencia-form
+      [incidenciaId]="idParaEditar()"
+      (closed)="cerrarFormulario()"
+      (saved)="guardarIncidencia($event)"
+    >
     </app-incidencia-form>
   }
 </div>

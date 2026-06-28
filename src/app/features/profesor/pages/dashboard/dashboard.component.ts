@@ -3,7 +3,10 @@ import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { ProfesorApiService } from '@features/profesor/services/profesor-api.service';
-import { IncidenciaFormComponent, type IncidenciaFormValue } from '../incidencia-form/incidencia-form.component';
+import {
+  IncidenciaFormComponent,
+  type IncidenciaFormValue,
+} from '../incidencia-form/incidencia-form.component';
 import { IncidentResponse } from '@core/auth/models/incident-response.model';
 
 type SalonResumen = {
@@ -18,7 +21,7 @@ type SalonResumen = {
   selector: 'app-dashboard',
   imports: [RouterLink, IncidenciaFormComponent],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
   private readonly profesorApiService = inject(ProfesorApiService);
@@ -32,18 +35,23 @@ export class DashboardComponent implements OnInit {
   idParaEditar = signal<number | null>(null);
 
   // Stats computed from active incidents list
-  readonly openCount = computed(() => this.incidencias().filter(i => i.status === 'NO_LEIDA').length);
-  readonly resolvedCount = computed(() => this.incidencias().filter(i => i.status === 'LEIDA').length);
+  readonly openCount = computed(
+    () => this.incidencias().filter((i) => i.status === 'NO_LEIDA').length
+  );
+  readonly resolvedCount = computed(
+    () => this.incidencias().filter((i) => i.status === 'LEIDA').length
+  );
 
   incidenciasFiltradas = computed(() => {
     const query = this.busqueda().toLowerCase().trim();
     const list = this.incidencias();
     if (!query) return list;
 
-    return list.filter(inc => 
-      inc.studentName.toLowerCase().includes(query) ||
-      inc.title.toLowerCase().includes(query) ||
-      inc.id.toString().includes(query)
+    return list.filter(
+      (inc) =>
+        inc.studentName.toLowerCase().includes(query) ||
+        inc.title.toLowerCase().includes(query) ||
+        inc.id.toString().includes(query)
     );
   });
 
@@ -54,22 +62,22 @@ export class DashboardComponent implements OnInit {
   loadData(): void {
     forkJoin({
       classes: this.profesorApiService.getMyClasses(),
-      incidents: this.profesorApiService.getMyIncidents()
+      incidents: this.profesorApiService.getMyIncidents(),
     }).subscribe({
       next: ({ classes, incidents }) => {
         if (classes.success && incidents.success) {
           const incidentsList = incidents.data;
-          
+
           // Map classes for dashboard UI
-          const processedClasses = classes.data.map(c => {
-            const classIncidents = incidentsList.filter(i => i.classId === c.id);
-            const noLeidas = classIncidents.filter(i => i.status === 'NO_LEIDA').length;
+          const processedClasses = classes.data.map((c) => {
+            const classIncidents = incidentsList.filter((i) => i.classId === c.id);
+            const noLeidas = classIncidents.filter((i) => i.status === 'NO_LEIDA').length;
             return {
               id: c.id,
               nombre: c.name,
               materia: 'Clase Asignada',
               estadoLabel: noLeidas > 0 ? `${noLeidas} Sin Leer` : '0 Sin Leer',
-              estadoTipo: noLeidas > 0 ? 'danger' as const : 'info' as const
+              estadoTipo: noLeidas > 0 ? ('danger' as const) : ('info' as const),
             };
           });
           this.salones.set(processedClasses);
@@ -78,7 +86,7 @@ export class DashboardComponent implements OnInit {
           this.incidencias.set(incidentsList);
         }
       },
-      error: (err) => console.error('Error loading dashboard data:', err)
+      error: (err) => console.error('Error loading dashboard data:', err),
     });
   }
 
@@ -129,7 +137,7 @@ export class DashboardComponent implements OnInit {
         error: (err) => {
           console.error('Error updating incident:', err);
           alert(err.error?.message || 'Error al actualizar la incidencia.');
-        }
+        },
       });
     } else {
       this.profesorApiService.createIncident(datos).subscribe({
@@ -142,7 +150,7 @@ export class DashboardComponent implements OnInit {
         error: (err) => {
           console.error('Error creating incident:', err);
           alert(err.error?.message || 'Error al crear la incidencia.');
-        }
+        },
       });
     }
   }
