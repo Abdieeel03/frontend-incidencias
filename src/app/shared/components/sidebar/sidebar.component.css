@@ -29,19 +29,10 @@
 }
 
 .sidebar-title {
-  color: var(--color-on-surface);
-  font-size: 1rem;
+  color: var(--color-primary);
+  font-size: 1.125rem;
   font-weight: 800;
   line-height: 1.2;
-}
-
-.sidebar-subtitle {
-  color: var(--color-on-surface-variant);
-  font-size: var(--font-size-label-sm);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  line-height: var(--line-height-label);
-  text-transform: uppercase;
 }
 
 .sidebar-nav {
@@ -85,7 +76,11 @@
 }
 
 .sidebar-link--active .material-symbols-outlined {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
 }
 
 .sidebar-link--settings {
@@ -188,8 +183,7 @@
   inset: 0;
   border: 0;
   background:
-    radial-gradient(circle at 50% 35%, rgb(30 64 175 / 18%), transparent 32rem),
-    rgb(11 28 48 / 48%);
+    radial-gradient(circle at 50% 35%, rgb(30 64 175 / 18%), transparent 32rem), rgb(11 28 48 / 48%);
   cursor: default;
 }
 
@@ -306,9 +300,22 @@
   font-feature-settings: 'liga';
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
 }
 
 .material-symbols-outlined--filled {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+.sidebar-user__avatar--has-image {
+  background-size: cover;
+  background-position: center;
 }

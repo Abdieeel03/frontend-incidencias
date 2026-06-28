@@ -1,0 +1,345 @@
+<div class="container">
+  <header class="main-header">
+    <div class="header-text">
+      <h1>Gestión de aulas</h1>
+      <p>
+        Supervisión y estado actual de los grupos de estudiantes. Seleccione un aula para ver el
+        detalle de incidencias y alumnos.
+      </p>
+    </div>
+    <div class="header-filter">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Buscar aula o tutor..."
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </div>
+      <button class="app-button app-button--primary" (click)="openCreateModal()">
+        Crear Aula +
+      </button>
+    </div>
+  </header>
+
+  <hr />
+
+  @if (isLoading()) {
+    <div class="loading-state">Cargando aulas...</div>
+  } @else {
+    <section class="nivel-section">
+      <h2 class="nivel-title">
+        Aulas Registradas <span class="card-count">{{ filteredClasses().length }} Aulas</span>
+      </h2>
+      <div class="cards-grid">
+        @for (aula of filteredClasses(); track aula.id) {
+          <div
+            class="aula-card"
+            [class.incidencia]="aula.incidentsCount > 0"
+            [class.info]="aula.incidentsCount === 0"
+          >
+            <div class="card-header">
+              <h3>{{ aula.name }}</h3>
+              <span
+                class="status-badge"
+                [class.incidencia]="aula.incidentsCount > 0"
+                [class.info]="aula.incidentsCount === 0"
+              >
+                {{ aula.incidentsCount }} Incidencias
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="tutor-info">
+                <span class="avatar">{{ aula.teacherInitials }}</span>
+                <span class="tutor-name"><small>Tutor</small><br />{{ aula.teacherName }}</span>
+              </div>
+              <div class="students-info">
+                <span>Estudiantes</span>
+                <strong>{{ aula.studentsCount }}</strong>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button class="btn-details" (click)="openDetail(aula)">Ver Detalles →</button>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state">No se encontraron aulas.</div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Modal: Crear Aula -->
+  @if (isCreateOpen()) {
+    <div
+      class="modal-overlay"
+      role="button"
+      tabindex="0"
+      aria-label="Cerrar modal"
+      (click)="closeCreateFromOverlay($event)"
+      (keydown.enter)="closeCreateFromOverlay($event)"
+      (keydown.space)="closeCreateFromOverlay($event)"
+    >
+      <div class="modal-card" role="dialog" aria-modal="true">
+        <div class="modal-header">
+          <h2>Registrar Nueva Aula</h2>
+          <button class="close-btn" (click)="closeCreateModal()" aria-label="Cerrar modal">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="classForm" (ngSubmit)="handleCreateClass()" class="class-form">
+            <div class="form-group">
+              <label for="className">Nombre del Aula <span class="required-star">*</span></label>
+              <input
+                id="className"
+                type="text"
+                formControlName="name"
+                placeholder="Ej. 3ro A - Primaria"
+                class="form-control"
+              />
+              @if (classForm.get('name')?.touched && classForm.get('name')?.invalid) {
+                <p class="error-text">El nombre es requerido (mínimo 3 caracteres).</p>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="teacherId"
+                >Tutor / Profesor Asignado <span class="required-star">*</span></label
+              >
+              <select id="teacherId" formControlName="teacherId" class="form-control">
+                <option [value]="null" disabled selected>Seleccione un profesor...</option>
+                @for (teacher of teachers(); track teacher.id) {
+                  <option [value]="teacher.id">{{ teacher.name }} ({{ teacher.dni }})</option>
+                }
+              </select>
+              @if (classForm.get('teacherId')?.touched && classForm.get('teacherId')?.invalid) {
+                <p class="error-text">Debe seleccionar un profesor tutor.</p>
+              }
+            </div>
+
+            <div class="form-actions-right">
+              <button
+                type="button"
+                class="app-button app-button--secondary"
+                (click)="closeCreateModal()"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="app-button app-button--primary"
+                [disabled]="isSavingClass()"
+              >
+                @if (isSavingClass()) {
+                  <span class="btn-spinner"></span> Guardando...
+                } @else {
+                  Registrar Aula
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: Detalle de Aula -->
+  @if (isDetailOpen()) {
+    <div
+      class="modal-overlay"
+      role="button"
+      tabindex="0"
+      aria-label="Cerrar modal"
+      (click)="closeFromOverlay($event)"
+      (keydown.enter)="closeFromOverlay($event)"
+      (keydown.space)="closeFromOverlay($event)"
+    >
+      <div class="modal-card modal-card--lg" role="dialog" aria-modal="true">
+        <div class="modal-header">
+          <h2>Detalle del Aula: {{ detailClass()?.name }}</h2>
+          <button class="close-btn" (click)="closeDetail()" aria-label="Cerrar modal">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="class-summary-info">
+            <div class="tutor-section">
+              <span class="avatar-large">{{ detailClass()?.teacherInitials }}</span>
+              <div>
+                <h4>Tutor del Aula</h4>
+                <p class="tutor-name-text">{{ detailClass()?.teacherName }}</p>
+              </div>
+            </div>
+            <div class="stats-section">
+              <div class="stat-badge info-badge">
+                <span class="stat-num">{{ detailClass()?.studentsCount }}</span>
+                <span class="stat-label">Alumnos</span>
+              </div>
+              <div class="stat-badge alert-badge">
+                <span class="stat-num">{{ detailClass()?.incidentsCount }}</span>
+                <span class="stat-label">Incidencias</span>
+              </div>
+            </div>
+          </div>
+
+          <hr class="modal-divider" />
+
+          <div class="students-header">
+            <h3>Alumnos del Aula</h3>
+            <button
+              class="app-button app-button--primary-subtle"
+              (click)="toggleAddStudentsSection()"
+            >
+              {{ isAddingStudents() ? 'Cancelar Selección' : '+ Agregar Alumnos' }}
+            </button>
+          </div>
+
+          @if (isAddingStudents()) {
+            <div class="add-students-panel">
+              <h4>Seleccionar Alumnos a Agregar</h4>
+              <div class="panel-search-box">
+                <input
+                  type="text"
+                  placeholder="Buscar alumno por nombre, código o DNI..."
+                  [value]="studentSearchQuery()"
+                  (input)="onStudentSearch($event)"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="available-students-list">
+                @if (availableStudents().length === 0) {
+                  <p class="empty-panel-text">
+                    No hay alumnos disponibles para agregar que coincidan con la búsqueda o que no
+                    pertenezcan ya al aula.
+                  </p>
+                } @else {
+                  <div class="student-checkbox-grid">
+                    @for (student of availableStudents(); track student.id) {
+                      <label
+                        class="student-checkbox-item"
+                        [class.selected]="selectedStudentIds().includes(student.id)"
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="selectedStudentIds().includes(student.id)"
+                          (change)="toggleStudentSelection(student.id)"
+                        />
+                        <div class="checkbox-label-content">
+                          <span class="student-item-name"
+                            >{{ student.firstName }} {{ student.lastName }}</span
+                          >
+                          <span class="student-item-sub"
+                            >{{ student.studentCode }} | DNI: {{ student.dni }}</span
+                          >
+                        </div>
+                      </label>
+                    }
+                  </div>
+                }
+              </div>
+
+              <div class="panel-actions">
+                <span class="selected-count">{{ selectedStudentIds().length }} seleccionados</span>
+                <button
+                  type="button"
+                  class="app-button app-button--primary"
+                  [disabled]="selectedStudentIds().length === 0 || isSavingAddedStudents()"
+                  (click)="handleAddStudents()"
+                >
+                  @if (isSavingAddedStudents()) {
+                    <span class="btn-spinner"></span> Agregando...
+                  } @else {
+                    Agregar Seleccionados
+                  }
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (isDetailLoading()) {
+            <div class="modal-loading-state">Cargando información de alumnos...</div>
+          } @else {
+            <div class="table-responsive">
+              <table class="app-table">
+                <thead>
+                  <tr>
+                    <th>Código Único</th>
+                    <th>Nombre Completo</th>
+                    <th>DNI</th>
+                    <th>Incidencias</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @if (detailStudents().length === 0) {
+                    <tr>
+                      <td colspan="4" class="empty-row">
+                        <p>No hay alumnos registrados en esta aula.</p>
+                      </td>
+                    </tr>
+                  } @else {
+                    @for (student of detailStudents(); track student.id) {
+                      <tr>
+                        <td>
+                          <span class="student-code">{{ student.studentCode }}</span>
+                        </td>
+                        <td>
+                          <span class="student-name"
+                            >{{ student.firstName }} {{ student.lastName }}</span
+                          >
+                        </td>
+                        <td>{{ student.dni }}</td>
+                        <td>
+                          @if (student.incidentCount > 0) {
+                            <span class="app-chip app-chip--critical">
+                              {{ student.incidentCount }}
+                              {{ student.incidentCount === 1 ? 'Incidencia' : 'Incidencias' }}
+                            </span>
+                          } @else {
+                            <span class="app-chip app-chip--resolved"> Sin incidencias </span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <button class="app-button app-button--secondary" (click)="closeDetail()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -10,7 +10,7 @@ export const roleGuard: CanActivateFn = (route) => {
   const allowedRoles = route.data['roles'] as readonly UserRole[] | undefined;
 
   if (!authService.isAuthenticated()) {
-    return true;
+    return router.createUrlTree(['/login']);
   }
 
   if (allowedRoles === undefined || authService.hasAnyRole(allowedRoles)) {

@@ -11,7 +11,7 @@
   flex-direction: column;
 }
 
-.dashboard-mobile-header {
+.dashboard-topbar {
   position: sticky;
   top: 0;
   z-index: 20;
@@ -25,10 +25,17 @@
   box-shadow: var(--shadow-level-1);
 }
 
-.dashboard-mobile-header__title {
+.dashboard-topbar__title {
   color: var(--color-on-surface);
   font-size: var(--font-size-body-sm);
   font-weight: 700;
+}
+
+.dashboard-topbar__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
 .dashboard-menu-button {
@@ -37,7 +44,7 @@
   height: 2.5rem;
   place-content: center;
   gap: 0.25rem;
-  border: 1px solid var(--color-outline-variant);
+  border: none;
   border-radius: var(--radius-default);
   background: var(--color-surface-container-lowest);
 }
@@ -48,6 +55,32 @@
   height: 2px;
   border-radius: var(--radius-full);
   background: var(--color-on-surface);
+}
+
+.dashboard-icon-button {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-content: center;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.dashboard-icon-button:hover,
+.dashboard-icon-button:focus-visible {
+  background: var(--color-surface-container-low);
+  color: var(--color-on-surface);
+}
+
+.dashboard-icon {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .dashboard-backdrop {
@@ -75,31 +108,35 @@
   transform: translateX(0);
 }
 
-.dashboard-content {
-  padding: var(--space-page-mobile);
-}
-
 @media (min-width: 768px) {
   .dashboard-layout {
     grid-template-columns: var(--sidebar-width) 1fr;
-    grid-template-rows: 1fr;
+    grid-template-rows: auto 1fr;
   }
 
-  .dashboard-mobile-header,
   .dashboard-backdrop {
     display: none;
   }
 
+  .dashboard-topbar {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 4.5rem;
+    padding: 0 var(--space-lg);
+  }
+
+  .dashboard-menu-button {
+    display: none;
+  }
+
   .dashboard-sidebar {
+    grid-column: 1;
+    grid-row: 1 / span 2;
     position: static;
     width: auto;
     min-height: auto;
     border-right: var(--border-subtle);
     padding: 0;
     transform: none;
-  }
-
-  .dashboard-content {
-    padding: var(--space-page-desktop);
   }
 }

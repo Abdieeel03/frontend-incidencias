@@ -1,0 +1,241 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(15 23 42 / 40%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--color-surface-container-lowest);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-level-2);
+  display: flex;
+  flex-direction: column;
+  animation: scaleIn 0.2s ease-out;
+}
+
+.modal-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-title {
+  font-size: var(--font-size-headline-sm);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.btn-close {
+  border: 0;
+  background: transparent;
+  font-size: 1.5rem;
+  color: var(--color-outline);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.btn-close:hover {
+  color: var(--color-on-surface);
+}
+
+.reactive-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-card__body {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  position: relative;
+}
+
+.form-label {
+  font-size: var(--font-size-label-sm);
+  font-weight: 600;
+  color: var(--color-on-surface);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+
+.autocomplete-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.icon-search-input {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--color-outline);
+  pointer-events: none;
+}
+
+.search-input {
+  padding-left: 2.25rem;
+}
+
+.suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--color-surface-container-lowest);
+  border: var(--border-subtle);
+  border-radius: var(--radius-default);
+  box-shadow: var(--shadow-level-2);
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 50;
+  list-style: none;
+  padding: 0;
+  margin: var(--space-xs) 0 0 0;
+}
+
+.suggestion-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background: var(--color-surface-container-low);
+}
+
+.suggestion-name {
+  font-size: var(--font-size-body-sm);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.suggestion-meta {
+  font-size: var(--font-size-label-sm);
+  color: var(--color-on-surface-variant);
+  margin-top: 2px;
+}
+
+.helper-text {
+  font-size: var(--font-size-label-md);
+  color: var(--color-outline);
+}
+
+.helper-text-success {
+  font-size: var(--font-size-label-md);
+  color: #166534;
+  font-weight: 500;
+}
+
+.error-text {
+  font-size: var(--font-size-label-md);
+  color: var(--color-error);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.error-text.no-margin {
+  margin: 0;
+}
+
+.app-input--error {
+  border-color: var(--color-error) !important;
+}
+
+.app-input--error:focus {
+  box-shadow: 0 0 0 3px rgb(186 26 26 / 15%) !important;
+}
+
+.textarea-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.char-counter {
+  font-size: var(--font-size-label-md);
+  color: var(--color-on-surface-variant);
+}
+
+.char-counter--limit {
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+.modal-card__footer {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid #f1f5f9;
+}
+
+.form-actions-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-md);
+}
+
+.btn-form-act {
+  min-width: 120px;
+  font-weight: 600;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .form-row-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -3,8 +3,7 @@
     <span class="material-symbols-outlined material-symbols-outlined--filled">shield_person</span>
   </div>
   <div>
-    <h1 class="sidebar-title">SAN IGNACIO</h1>
-    <p class="sidebar-subtitle">Incidencias</p>
+    <h1 class="sidebar-title">{{ title() }}</h1>
   </div>
 </div>
 
@@ -38,10 +37,19 @@
 
 <footer class="sidebar-session" aria-label="Sesion de usuario">
   <div class="sidebar-user">
-    <div class="sidebar-user__avatar" aria-hidden="true">{{ mockUser.initials }}</div>
+    <div
+      class="sidebar-user__avatar"
+      [class.sidebar-user__avatar--has-image]="user()?.imageUrl"
+      [style.background-image]="user()?.imageUrl ? 'url(' + user()?.imageUrl + ')' : null"
+      aria-hidden="true"
+    >
+      @if (!user()?.imageUrl) {
+        {{ initials() }}
+      }
+    </div>
     <div class="sidebar-user__details">
-      <h2 class="sidebar-user__name">{{ mockUser.name }}</h2>
-      <p class="sidebar-user__role">{{ mockUser.role | roleLabel }}</p>
+      <h2 class="sidebar-user__name">{{ user()?.name }}</h2>
+      <p class="sidebar-user__role">{{ user()?.role | roleLabel }}</p>
     </div>
   </div>
 
@@ -79,10 +87,18 @@
       </div>
 
       <div class="logout-modal__actions">
-        <button class="logout-modal__button logout-modal__button--secondary" type="button" (click)="closeLogoutModal()">
+        <button
+          class="logout-modal__button logout-modal__button--secondary"
+          type="button"
+          (click)="closeLogoutModal()"
+        >
           Cancelar
         </button>
-        <button class="logout-modal__button logout-modal__button--danger" type="button" (click)="confirmLogout()">
+        <button
+          class="logout-modal__button logout-modal__button--danger"
+          type="button"
+          (click)="confirmLogout()"
+        >
           Sí, cerrar sesión
         </button>
       </div>

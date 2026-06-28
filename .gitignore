@@ -30,6 +30,11 @@ package-lock.json
 !.vscode/mcp.json
 .history/*
 
+# Skills
+.agents/
+.context
+skills-lock.json
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/
@@ -43,3 +48,11 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment variables (contains secrets)
+.env
+
+# Generated environment files (created by scripts/generate-env.js)
+.env
+src/app/environments/environment.ts
+src/app/environments/environment.prod.ts

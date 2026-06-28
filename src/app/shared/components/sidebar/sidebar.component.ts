@@ -1,8 +1,8 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
-import { USER_ROLES } from '@core/auth/models/user-role.model';
 import { RoleLabelPipe } from '@shared/pipes/role-label.pipe';
+import { AuthService } from '@core/auth/services/auth.service';
 
 type SidebarItem = {
   readonly label: string;
@@ -11,6 +11,12 @@ type SidebarItem = {
 };
 
 type DashboardSection = 'coordinador' | 'profesor' | 'padre';
+
+const TITLE_MAP: Record<DashboardSection, string> = {
+  coordinador: 'Coordinador Panel',
+  profesor: 'Profesor Panel',
+  padre: 'Padre Panel',
+};
 
 const SECTION_NAVIGATION: Record<DashboardSection, readonly SidebarItem[]> = {
   coordinador: [
@@ -22,7 +28,7 @@ const SECTION_NAVIGATION: Record<DashboardSection, readonly SidebarItem[]> = {
   ],
   profesor: [
     { label: 'Dashboard', icon: 'dashboard', path: '/profesor' },
-    { label: 'Mis clases', icon: 'local_library', path: '/profesor/mis-clases' },
+    { label: 'Mis clases', icon: 'local_library', path: '/profesor/aulas' },
     { label: 'Incidencias', icon: 'report_problem', path: '/profesor/incidencias' },
   ],
   padre: [
@@ -39,6 +45,7 @@ const SECTION_NAVIGATION: Record<DashboardSection, readonly SidebarItem[]> = {
 })
 export class SidebarComponent {
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   readonly isOpen = input(false);
   readonly navigate = output<void>();
@@ -47,11 +54,14 @@ export class SidebarComponent {
   protected readonly section = computed(() => this.getSectionFromUrl());
   protected readonly settingsPath = '/settings';
   protected readonly navigationItems = computed(() => SECTION_NAVIGATION[this.section()]);
-  protected readonly mockUser = {
-    name: 'Usuario Demo',
-    role: USER_ROLES.COORDINADOR,
-    initials: 'U',
-  };
+  protected readonly title = computed(() => TITLE_MAP[this.section()]);
+
+  protected readonly user = this.authService.user;
+
+  protected readonly initials = computed(() => {
+    const name = this.user()?.name ?? '';
+    return name.charAt(0).toUpperCase();
+  });
 
   protected onNavigate(): void {
     this.navigate.emit();
@@ -67,6 +77,8 @@ export class SidebarComponent {
 
   protected confirmLogout(): void {
     this.isLogoutModalOpen.set(false);
+    this.authService.clearSession();
+    void this.router.navigate(['/login']);
   }
 
   private getSectionFromUrl(): DashboardSection {

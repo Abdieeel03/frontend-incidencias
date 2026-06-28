@@ -1,0 +1,219 @@
+<div class="settings-page">
+  <div class="settings-grid">
+    <div class="settings-card">
+      <h3 class="settings-card__title">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        Información del Usuario
+      </h3>
+
+      <div class="profile-header">
+        <div
+          class="profile-avatar"
+          [class.profile-avatar--has-image]="profileImage()"
+          [class.profile-avatar--uploading]="isUploadingImage()"
+          [style.background-image]="profileImage() ? 'url(' + profileImage() + ')' : null"
+        >
+          @if (isUploadingImage()) {
+            <span class="profile-avatar__spinner"></span>
+          } @else if (!profileImage()) {
+            <span class="profile-avatar__initials">{{ avatarInitials() }}</span>
+          }
+          <button
+            class="profile-avatar__edit"
+            type="button"
+            (click)="triggerImageUpload()"
+            aria-label="Cambiar foto de perfil"
+            [disabled]="isUploadingImage()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+              />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+          </button>
+        </div>
+        <input
+          type="file"
+          id="profile-image-input"
+          accept="image/*"
+          (change)="onImageSelected($event)"
+          hidden
+        />
+
+        <div class="profile-info">
+          <h4 class="profile-name">{{ user()?.name }}</h4>
+          <span class="profile-role">{{ user()?.role }}</span>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="profile-detail">
+          <span class="profile-detail__label">Nombre de Usuario</span>
+          <p class="profile-detail__value">{{ user()?.username }}</p>
+        </div>
+        <div class="profile-detail">
+          <span class="profile-detail__label">Correo Electrónico</span>
+          <p class="profile-detail__value">{{ user()?.email }}</p>
+        </div>
+        <div class="profile-notice">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <span>
+            La información personal es administrada y configurada por la coordinación de la
+            institución. Si necesitas corregir tu correo o nombre, solicita el cambio con el
+            coordinador.
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <h3 class="settings-card__title">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        Seguridad y Contraseña
+      </h3>
+
+      @if (passwordSuccess()) {
+        <div class="success-message">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+          Contraseña actualizada correctamente
+        </div>
+      }
+
+      @if (passwordErrors()['form']) {
+        <div class="form-error form-error--block">
+          {{ passwordErrors()['form'] }}
+        </div>
+      }
+
+      <form class="password-form" (submit)="handlePasswordChange($event)">
+        <div class="form-field">
+          <label class="form-label" for="old-password">Contraseña Actual</label>
+          <input
+            class="app-input"
+            id="old-password"
+            type="password"
+            placeholder="Ingresa tu contraseña actual"
+            [value]="oldPassword()"
+            (input)="oldPassword.set($any($event.target).value)"
+            [disabled]="isSavingPassword()"
+          />
+          @if (passwordErrors()['oldPassword']) {
+            <span class="form-error">{{ passwordErrors()['oldPassword'] }}</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="new-password">Nueva Contraseña</label>
+          <input
+            class="app-input"
+            id="new-password"
+            type="password"
+            placeholder="Min. 8 caracteres"
+            [value]="newPassword()"
+            (input)="newPassword.set($any($event.target).value)"
+            [disabled]="isSavingPassword()"
+          />
+          @if (passwordErrors()['newPassword']) {
+            <span class="form-error">{{ passwordErrors()['newPassword'] }}</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="confirm-password">Confirmar Nueva Contraseña</label>
+          <input
+            class="app-input"
+            id="confirm-password"
+            type="password"
+            placeholder="Repite la nueva contraseña"
+            [value]="confirmPassword()"
+            (input)="confirmPassword.set($any($event.target).value)"
+            [disabled]="isSavingPassword()"
+          />
+          @if (passwordErrors()['confirmPassword']) {
+            <span class="form-error">{{ passwordErrors()['confirmPassword'] }}</span>
+          }
+        </div>
+
+        <button
+          class="app-button app-button--primary"
+          type="submit"
+          [disabled]="isSavingPassword()"
+        >
+          @if (isSavingPassword()) {
+            <span class="button-spinner"></span>
+            Actualizando...
+          } @else {
+            Actualizar Contraseña
+          }
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,21 +1,19 @@
 import { Routes } from '@angular/router';
 
-const loadCoordinadorHome = () =>
-  import('@features/coordinador/pages/coordinador-home/coordinador-home.component').then(
-    (m) => m.CoordinadorHomeComponent
-  );
+import { guestGuard } from '@core/auth/guards/guest.guard';
+import { authGuard } from '@core/auth/guards/auth.guard';
+import { roleGuard } from '@core/auth/guards/role.guard';
+import { USER_ROLES } from '@core/auth/models/user-role.model';
 
-const loadProfesorHome = () =>
-  import('@features/profesor/pages/profesor-home/profesor-home.component').then(
-    (m) => m.ProfesorHomeComponent
+const loadProfileSettings = () =>
+  import('@features/settings/pages/profile-settings/profile-settings.component').then(
+    (m) => m.ProfileSettingsComponent
   );
-
-const loadPadreHome = () =>
-  import('@features/padre/pages/padre-home/padre-home.component').then((m) => m.PadreHomeComponent);
 
 export const routes: Routes = [
   {
     path: '',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('@layouts/auth-layout/auth-layout.component').then((m) => m.AuthLayoutComponent),
     children: [
@@ -40,6 +38,7 @@ export const routes: Routes = [
   },
   {
     path: '',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('@layouts/dashboard-layout/dashboard-layout.component').then(
         (m) => m.DashboardLayoutComponent
@@ -47,62 +46,26 @@ export const routes: Routes = [
     children: [
       {
         path: 'coordinador',
-        children: [
-          {
-            path: '',
-            loadComponent: loadCoordinadorHome,
-          },
-          {
-            path: 'usuarios',
-            loadComponent: loadCoordinadorHome,
-          },
-          {
-            path: 'incidencias',
-            loadComponent: loadCoordinadorHome,
-          },
-          {
-            path: 'clases',
-            loadComponent: loadCoordinadorHome,
-          },
-          {
-            path: 'estudiantes',
-            loadComponent: loadCoordinadorHome,
-          },
-        ],
+        canActivate: [roleGuard],
+        data: { roles: [USER_ROLES.COORDINADOR] },
+        loadChildren: () =>
+          import('@features/coordinador/coordinador.routes').then((m) => m.routes),
       },
       {
         path: 'profesor',
-        children: [
-          {
-            path: '',
-            loadComponent: loadProfesorHome,
-          },
-          {
-            path: 'mis-clases',
-            loadComponent: loadProfesorHome,
-          },
-          {
-            path: 'incidencias',
-            loadComponent: loadProfesorHome,
-          },
-        ],
+        canActivate: [roleGuard],
+        data: { roles: [USER_ROLES.PROFESOR] },
+        loadChildren: () => import('@features/profesor/profesor.routes').then((m) => m.routes),
       },
       {
         path: 'padre',
-        children: [
-          {
-            path: '',
-            loadComponent: loadPadreHome,
-          },
-          {
-            path: 'mis-hijos',
-            loadComponent: loadPadreHome,
-          },
-        ],
+        canActivate: [roleGuard],
+        data: { roles: [USER_ROLES.PADRE] },
+        loadChildren: () => import('@features/padre/padre.routes').then((m) => m.routes),
       },
       {
         path: 'settings',
-        loadComponent: loadCoordinadorHome,
+        loadComponent: loadProfileSettings,
       },
     ],
   },

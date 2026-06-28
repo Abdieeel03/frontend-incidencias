@@ -1,15 +1,16 @@
 {
-  "name": "frontend-incidencias",
+  "name": "rise",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "node scripts/generate-env.js && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:frontend-incidencias": "node dist/frontend-incidencias/server/server.mjs",
+    "serve:ssr:rise": "node dist/rise/server/server.mjs",
     "format": "prettier --write \"src/**/*.{ts,html,css,json}\"",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "postinstall": "node scripts/generate-env.js"
   },
   "private": true,
   "packageManager": "pnpm@11.8.0",
@@ -22,6 +23,7 @@
     "@angular/platform-server": "^22.0.0",
     "@angular/router": "^22.0.0",
     "@angular/ssr": "^22.0.0",
+    "@supabase/supabase-js": "^2.108.2",
     "express": "^5.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
@@ -35,11 +37,14 @@
     "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",
     "angular-eslint": "22.0.0",
+    "dotenv": "^17.4.2",
+    "dotenv-webpack": "^9.0.0",
     "eslint": "^10.3.0",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",
     "typescript-eslint": "8.60.1",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "webpack-merge": "^6.0.1"
   }
 }

@@ -1,0 +1,245 @@
+<div class="dashboard-page-content">
+  <div class="page-title-bar">
+    <div class="title-container">
+      <h1 class="main-title">Resumen de Incidencias</h1>
+      <p class="main-subtitle">Gestiona y haz seguimiento de las incidencias de los estudiantes.</p>
+    </div>
+    <button
+      (click)="abrirFormularioCrear()"
+      class="app-button app-button--primary btn-new-incident"
+      type="button"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="2.5"
+        stroke="currentColor"
+        class="icon-plus"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Nueva Incidencia
+    </button>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="grid-main-column">
+      <div class="app-card status-card">
+        <div class="card-header-clean">
+          <h2 class="card-title-clean">Estado Actual</h2>
+        </div>
+        <div class="status-metrics-row">
+          <div class="status-metric">
+            <span class="status-metric__label">Incidencias Sin Leer</span>
+            <span class="status-metric__value text-danger">{{ openCount() }}</span>
+          </div>
+          <div class="status-metric">
+            <span class="status-metric__label">Leídas</span>
+            <span class="status-metric__value text-success">{{ resolvedCount() }}</span>
+          </div>
+          <div class="status-metric">
+            <span class="status-metric__label">Total Histórico</span>
+            <span class="status-metric__value text-primary">{{ incidencias().length }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-card table-card">
+        <div class="table-card-header">
+          <h2 class="card-title-clean">Incidencias Recientes</h2>
+          <div class="search-input-wrapper">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              class="icon-search"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.637 10.637Z"
+              />
+            </svg>
+            <input
+              type="text"
+              placeholder="Buscar por alumno o título..."
+              class="app-input search-input"
+              [value]="busqueda()"
+              (input)="onSearch($event)"
+              aria-label="Buscar incidencia reciente"
+            />
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Estudiante</th>
+                <th>Título</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (inc of incidenciasFiltradas(); track inc.id) {
+                <tr>
+                  <td class="col-code">#INC-{{ inc.id }}</td>
+                  <td class="col-student-name">{{ inc.studentName }}</td>
+                  <td class="col-title">{{ inc.title }}</td>
+                  <td>
+                    <span
+                      class="app-chip"
+                      [class]="'app-chip--' + (inc.status === 'NO_LEIDA' ? 'critical' : 'resolved')"
+                    >
+                      {{ inc.status === 'NO_LEIDA' ? 'Sin Leer' : 'Leída' }}
+                    </span>
+                  </td>
+                  <td class="col-actions">
+                    <button type="button" class="btn-action-ghost" (click)="abrirModal(inc)">
+                      Ver
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-action-ghost text-primary"
+                      (click)="abrirFormularioEditar(inc.id)"
+                    >
+                      Editar
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="table-empty-state">
+                    No hay incidencias registradas recientemente.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-card-footer">
+          <span class="footer-info"
+            >Mostrando {{ incidenciasFiltradas().length }} de
+            {{ incidencias().length }} entradas</span
+          >
+          <a routerLink="/profesor/incidencias" class="btn-view-all">Ver todas las incidencias →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-side-column">
+      <div class="app-card side-card">
+        <div class="side-card-header">
+          <h2 class="card-title-clean">Mis Salones</h2>
+          <a
+            routerLink="/profesor/aulas"
+            class="icon-link-external"
+            aria-label="Ver todas las aulas"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              class="icon-external"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <div class="side-salones-list">
+          @for (salon of salones(); track salon.id) {
+            <div class="side-salon-item">
+              <div class="salon-item-info">
+                <span class="salon-name">{{ salon.nombre }}</span>
+                <span class="salon-materia">{{ salon.materia }}</span>
+              </div>
+              <span class="salon-badge" [class]="'salon-badge--' + salon.estadoTipo">
+                {{ salon.estadoLabel }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (incidenciaSeleccionada(); as inc) {
+    <div
+      class="modal-overlay"
+      role="button"
+      tabindex="0"
+      aria-label="Cerrar modal"
+      (click)="closeModalFromOverlay($event)"
+      (keydown.enter)="closeModalFromOverlay($event)"
+      (keydown.space)="closeModalFromOverlay($event)"
+    >
+      <div class="app-card modal-card" role="dialog" aria-modal="true">
+        <header class="modal-card__header">
+          <div class="modal-title-container">
+            <span class="modal-badge-id">#INC-{{ inc.id }}</span>
+            <h2 class="modal-title">{{ inc.title }}</h2>
+          </div>
+          <button type="button" class="btn-close" (click)="cerrarModal()" aria-label="Cerrar modal">
+            ×
+          </button>
+        </header>
+
+        <div class="modal-card__body">
+          <div class="detail-row">
+            <span class="detail-label">Estudiante</span>
+            <span class="detail-value">{{ inc.studentName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Aula / Clase</span>
+            <span class="detail-value">{{ inc.className }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Fecha y Hora</span>
+            <span class="detail-value">{{ inc.incidentDate }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Estado</span>
+            <span
+              class="app-chip"
+              [class]="'app-chip--' + (inc.status === 'NO_LEIDA' ? 'critical' : 'resolved')"
+            >
+              {{ inc.status === 'NO_LEIDA' ? 'Sin Leer' : 'Leída' }}
+            </span>
+          </div>
+          <div class="detail-description-box">
+            <span class="detail-label block">Descripción Detallada</span>
+            <p class="detail-description-text">{{ inc.description }}</p>
+          </div>
+        </div>
+
+        <footer class="modal-card__footer">
+          <button class="app-button app-button--secondary" type="button" (click)="cerrarModal()">
+            Cerrar
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+
+  @if (mostrarFormModal()) {
+    <app-incidencia-form
+      [incidenciaId]="idParaEditar()"
+      (closed)="cerrarFormulario()"
+      (saved)="guardarIncidencia($event)"
+    >
+    </app-incidencia-form>
+  }
+</div>
