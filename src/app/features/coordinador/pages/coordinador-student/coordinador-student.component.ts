@@ -42,6 +42,7 @@ export class CoordinadorStudentComponent implements OnInit {
   protected readonly isSaving = signal(false);
   protected readonly isDetailLoading = signal(false);
   protected readonly isActionLoading = signal(false);
+  protected readonly isExporting = signal(false);
 
   // Modales
   protected readonly isFormOpen = signal(false);
@@ -310,6 +311,26 @@ export class CoordinadorStudentComponent implements OnInit {
         this.isActionLoading.set(false);
         console.error('Error restoring student:', err);
         alert(err.error?.message || 'Error al restaurar el estudiante.');
+      },
+    });
+  }
+
+  protected exportStudentReport(studentCode: string): void {
+    this.isExporting.set(true);
+    this.coordinadorApiService.downloadStudentIncidentReport(studentCode).subscribe({
+      next: (blob) => {
+        this.isExporting.set(false);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reporte_incidencias_${studentCode}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        this.isExporting.set(false);
+        console.error('Error exporting PDF report:', err);
+        alert('Error al descargar el reporte en PDF.');
       },
     });
   }
