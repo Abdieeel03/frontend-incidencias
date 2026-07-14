@@ -1,0 +1,33 @@
+<div class="paginator-container">
+  <div class="paginator-info">
+    Mostrando {{ startIndex() }} - {{ endIndex() }} de {{ totalItems() }} registros
+  </div>
+  
+  <div class="paginator-controls">
+    <button 
+      class="paginator-btn" 
+      [disabled]="!hasPrevious()" 
+      (click)="goToPrevious()"
+      aria-label="Página anterior"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m15 18-6-6 6-6"/>
+      </svg>
+    </button>
+    
+    <span class="paginator-page-info">
+      Página {{ currentPage() + 1 }} de {{ totalPages() }}
+    </span>
+    
+    <button 
+      class="paginator-btn" 
+      [disabled]="!hasNext()" 
+      (click)="goToNext()"
+      aria-label="Página siguiente"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m9 18 6-6-6-6"/>
+      </svg>
+    </button>
+  </div>
+</div>
