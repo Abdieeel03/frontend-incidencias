@@ -348,9 +348,29 @@
   color: var(--color-on-surface-variant);
 }
 
+.student-actions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
 .btn-crear-incidencia {
   padding: 0.375rem 0.75rem;
   font-size: var(--font-size-body-sm);
+}
+
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.btn-export-pdf {
+  padding: 6px 12px;
+  font-size: var(--font-size-body-sm);
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .empty-state {
