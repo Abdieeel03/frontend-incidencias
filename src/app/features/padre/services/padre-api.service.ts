@@ -41,4 +41,11 @@ export class PadreApiService {
       .patch<ApiResponse<void>>(`${this.baseUrl}/incidents/${id}/read`, {})
       .pipe(tap(() => this.cacheService.invalidate('/incidents')));
   }
+
+  // ─── REPORTES PDF ────────────────────────────────────────────────────
+  downloadStudentIncidentReport(studentCode: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/reports/students/${studentCode}/incidents`, {
+      responseType: 'blob',
+    });
+  }
 }

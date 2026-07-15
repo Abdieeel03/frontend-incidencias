@@ -23,6 +23,7 @@ export class PadreChildrenIncidentsComponent implements OnInit {
   protected readonly children = signal<Child[]>([]);
   protected readonly actionLoadingId = signal<number | null>(null);
   protected readonly incidents = signal<IncidentResponse[]>([]);
+  protected readonly isExporting = signal(false);
 
   protected readonly selectedChildId = signal<number | null>(null);
 
@@ -100,5 +101,25 @@ export class PadreChildrenIncidentsComponent implements OnInit {
     const childExists = list.some((child) => child.id === selectedStudentId);
 
     return childExists ? selectedStudentId : (list[0]?.id ?? null);
+  }
+
+  protected exportChildReport(studentCode: string): void {
+    this.isExporting.set(true);
+    this.padreApiService.downloadStudentIncidentReport(studentCode).subscribe({
+      next: (blob) => {
+        this.isExporting.set(false);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reporte_incidencias_${studentCode}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        this.isExporting.set(false);
+        console.error('Error exporting PDF report:', err);
+        alert('Error al descargar el reporte en PDF.');
+      },
+    });
   }
 }

@@ -31,6 +31,9 @@ export class AulasComponent implements OnInit {
   readonly studentsInSelectedAula = signal<StudentResponse[]>([]);
   readonly studentSearchQuery = signal('');
 
+  readonly isExportingClass = signal(false);
+  readonly exportingStudentCode = signal<string | null>(null);
+
   readonly filteredClasses = computed(() => {
     const nivel = this.filterNivel();
     const classList = this.classes();
@@ -126,6 +129,46 @@ export class AulasComponent implements OnInit {
         action: 'new',
         classId: aula.id,
         studentDni: student.dni,
+      },
+    });
+  }
+
+  exportClassReport(classId: number): void {
+    this.isExportingClass.set(true);
+    this.profesorApiService.downloadClassIncidentReport(classId).subscribe({
+      next: (blob) => {
+        this.isExportingClass.set(false);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reporte_incidencias_aula_${classId}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        this.isExportingClass.set(false);
+        console.error('Error exporting class PDF report:', err);
+        alert('Error al descargar el reporte en PDF.');
+      },
+    });
+  }
+
+  exportStudentReport(studentCode: string): void {
+    this.exportingStudentCode.set(studentCode);
+    this.profesorApiService.downloadStudentIncidentReport(studentCode).subscribe({
+      next: (blob) => {
+        this.exportingStudentCode.set(null);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reporte_incidencias_${studentCode}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        this.exportingStudentCode.set(null);
+        console.error('Error exporting student PDF report:', err);
+        alert('Error al descargar el reporte individual en PDF.');
       },
     });
   }

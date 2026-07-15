@@ -149,17 +149,47 @@
               {{ selectedAulaDetails()?.nivel }}
             </span>
           </div>
-          <button class="btn-close" (click)="closeDetailsModal()" aria-label="Cerrar modal">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
+          <div class="modal-header-actions">
+            <button
+              class="app-button app-button--secondary btn-export-pdf"
+              (click)="exportClassReport(selectedAulaDetails()!.id)"
+              [disabled]="isExportingClass() || !selectedAulaDetails()"
+              title="Descargar reporte del aula"
             >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+              @if (isExportingClass()) {
+                Descargando...
+              } @else {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  style="margin-right: 6px;"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Exportar PDF
+              }
+            </button>
+            <button class="btn-close" (click)="closeDetailsModal()" aria-label="Cerrar modal">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </header>
 
         <div class="modal-body">
@@ -189,6 +219,18 @@
                     </div>
                   </div>
                   <div class="student-actions">
+                    <button
+                      class="app-button app-button--secondary btn-export-pdf"
+                      (click)="exportStudentReport(student.studentCode)"
+                      [disabled]="exportingStudentCode() === student.studentCode"
+                      title="Descargar PDF"
+                    >
+                      @if (exportingStudentCode() === student.studentCode) {
+                        <span class="btn-spinner"></span>
+                      } @else {
+                        PDF
+                      }
+                    </button>
                     <button
                       class="app-button app-button--primary btn-crear-incidencia"
                       (click)="createIncidentForStudent(student)"

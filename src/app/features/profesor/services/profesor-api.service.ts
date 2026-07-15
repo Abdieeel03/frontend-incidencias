@@ -73,4 +73,17 @@ export class ProfesorApiService {
   getDeletedIncidents(): Observable<ApiResponse<IncidentResponse[]>> {
     return this.http.get<ApiResponse<IncidentResponse[]>>(`${this.baseUrl}/incidents/deleted`);
   }
+
+  // ─── REPORTES PDF ────────────────────────────────────────────────────
+  downloadClassIncidentReport(classId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/reports/classes/${classId}/incidents`, {
+      responseType: 'blob',
+    });
+  }
+
+  downloadStudentIncidentReport(studentCode: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/reports/students/${studentCode}/incidents`, {
+      responseType: 'blob',
+    });
+  }
 }
