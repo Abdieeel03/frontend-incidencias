@@ -4,10 +4,11 @@ import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angula
 import { CoordinadorApiService } from '../../services/coordinador-api.service';
 import { UserResponse } from '@core/auth/models/user-response.model';
 import { UserRole, USER_ROLES } from '@core/auth/models/user-role.model';
+import { PaginatorComponent } from '@shared/components/paginator/paginator.component';
 
 @Component({
   selector: 'app-coordinador-user',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, PaginatorComponent],
   templateUrl: './coordinador-user.component.html',
   styleUrl: './coordinador-user.component.css',
 })
@@ -27,6 +28,10 @@ export class CoordinadorUserComponent implements OnInit {
   protected readonly search = signal('');
   protected readonly roleFilter = signal<string>('');
   protected readonly showDeleted = signal(false);
+
+  // Paginación
+  protected readonly PAGE_SIZE = 10;
+  protected readonly currentPage = signal(0);
 
   // Datos reales desde la API
   protected readonly users = signal<UserResponse[]>([]);
@@ -61,6 +66,14 @@ export class CoordinadorUserComponent implements OnInit {
       return matchesSearch && matchesRole;
     });
   });
+
+  // Lista paginada
+  protected readonly paginatedUsers = computed(() => {
+    const filtered = this.filteredUsers();
+    const start = this.currentPage() * this.PAGE_SIZE;
+    return filtered.slice(start, start + this.PAGE_SIZE);
+  });
+
 
   ngOnInit(): void {
     this.loadUsers();

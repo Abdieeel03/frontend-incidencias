@@ -31,6 +31,7 @@ export class CoordinadorClassComponent implements OnInit {
   private readonly coordinadorApiService = inject(CoordinadorApiService);
 
   protected readonly isLoading = signal(false);
+  protected readonly isExporting = signal(false);
   protected readonly search = signal('');
   protected readonly classesList = signal<ClassCard[]>([]);
 
@@ -308,5 +309,25 @@ export class CoordinadorClassComponent implements OnInit {
           alert(err.error?.message || 'Error al agregar los estudiantes.');
         },
       });
+  }
+
+  protected exportClassReport(classId: number): void {
+    this.isExporting.set(true);
+    this.coordinadorApiService.downloadClassIncidentReport(classId).subscribe({
+      next: (blob) => {
+        this.isExporting.set(false);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reporte_incidencias_aula_${classId}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        this.isExporting.set(false);
+        console.error('Error exporting class PDF report:', err);
+        alert('Error al descargar el reporte en PDF.');
+      },
+    });
   }
 }

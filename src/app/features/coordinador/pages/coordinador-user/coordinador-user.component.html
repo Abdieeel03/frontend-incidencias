@@ -63,7 +63,7 @@
               <td colspan="7" class="empty-row">No se encontraron usuarios.</td>
             </tr>
           } @else {
-            @for (user of filteredUsers(); track user.id) {
+            @for (user of paginatedUsers(); track user.id) {
               <tr>
                 <td>
                   <strong>{{ user.name }}</strong>
@@ -116,6 +116,13 @@
           }
         </tbody>
       </table>
+      @if (filteredUsers().length > 0) {
+        <app-paginator 
+          [totalItems]="filteredUsers().length" 
+          [pageSize]="PAGE_SIZE"
+          (pageChange)="currentPage.set($event)"
+        />
+      }
     </div>
   }
 

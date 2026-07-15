@@ -10,6 +10,7 @@ import {
   UpdateStudentRequest,
 } from '@core/auth/models/student-response.model';
 import { UserResponse } from '@core/auth/models/user-response.model';
+import { PaginatorComponent } from '@shared/components/paginator/paginator.component';
 
 export type Student = StudentResponse;
 
@@ -29,7 +30,7 @@ export type StudentDetail = StudentResponse & {
 
 @Component({
   selector: 'app-coordinador-student',
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe, PaginatorComponent],
   templateUrl: './coordinador-student.component.html',
   styleUrl: './coordinador-student.component.css',
 })
@@ -42,12 +43,17 @@ export class CoordinadorStudentComponent implements OnInit {
   protected readonly isSaving = signal(false);
   protected readonly isDetailLoading = signal(false);
   protected readonly isActionLoading = signal(false);
+  protected readonly isExporting = signal(false);
 
   // Modales
   protected readonly isFormOpen = signal(false);
   protected readonly isDetailOpen = signal(false);
   protected readonly isDeleteOpen = signal(false);
   protected readonly isRestoreOpen = signal(false);
+
+  // Paginación
+  protected readonly PAGE_SIZE = 10;
+  protected readonly currentPage = signal(0);
 
   // Data Signals
   protected readonly students = signal<Student[]>([]);
@@ -87,6 +93,14 @@ export class CoordinadorStudentComponent implements OnInit {
       );
     });
   });
+
+  // Lista paginada
+  protected readonly paginatedStudents = computed(() => {
+    const filtered = this.filteredStudents();
+    const start = this.currentPage() * this.PAGE_SIZE;
+    return filtered.slice(start, start + this.PAGE_SIZE);
+  });
+
 
   ngOnInit(): void {
     this.loadStudents();
@@ -310,6 +324,26 @@ export class CoordinadorStudentComponent implements OnInit {
         this.isActionLoading.set(false);
         console.error('Error restoring student:', err);
         alert(err.error?.message || 'Error al restaurar el estudiante.');
+      },
+    });
+  }
+
+  protected exportStudentReport(studentCode: string): void {
+    this.isExporting.set(true);
+    this.coordinadorApiService.downloadStudentIncidentReport(studentCode).subscribe({
+      next: (blob) => {
+        this.isExporting.set(false);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reporte_incidencias_${studentCode}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        this.isExporting.set(false);
+        console.error('Error exporting PDF report:', err);
+        alert('Error al descargar el reporte en PDF.');
       },
     });
   }

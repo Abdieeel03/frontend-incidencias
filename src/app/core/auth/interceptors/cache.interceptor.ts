@@ -1,7 +1,10 @@
 import { inject } from '@angular/core';
-import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
-import { of, tap } from 'rxjs';
+import { HttpInterceptorFn, HttpResponse, HttpEvent } from '@angular/common/http';
+import { Observable, of, tap, shareReplay, finalize } from 'rxjs';
 import { CacheService } from '../services/cache.service';
+
+// Almacena las peticiones que están "en vuelo" (in-flight)
+const pendingRequests = new Map<string, Observable<HttpEvent<unknown>>>();
 
 export const cacheInterceptor: HttpInterceptorFn = (req, next) => {
   // Only cache GET requests
@@ -16,11 +19,27 @@ export const cacheInterceptor: HttpInterceptorFn = (req, next) => {
     return of(cachedResponse);
   }
 
-  return next(req).pipe(
+  // Si ya hay una petición idéntica en vuelo, nos suscribimos a ella
+  if (pendingRequests.has(req.urlWithParams)) {
+    return pendingRequests.get(req.urlWithParams)!;
+  }
+
+  // Si no, iniciamos la petición y la compartimos (shareReplay)
+  const sharedRequest$ = next(req).pipe(
     tap((event) => {
       if (event instanceof HttpResponse) {
         cacheService.set(req.urlWithParams, event);
       }
-    })
+    }),
+    finalize(() => {
+      // Limpiamos el mapa cuando la petición termine (éxito o error)
+      pendingRequests.delete(req.urlWithParams);
+    }),
+    shareReplay({ bufferSize: 1, refCount: true })
   );
+
+  // Guardamos el observable compartido
+  pendingRequests.set(req.urlWithParams, sharedRequest$);
+
+  return sharedRequest$;
 };

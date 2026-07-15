@@ -211,4 +211,18 @@ export class CoordinadorApiService {
       `${this.baseUrl}/incidents/student/${studentId}`
     );
   }
+
+
+  downloadStudentIncidentReport(studentCode: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/reports/students/${studentCode}/incidents`, {
+      responseType: 'blob',
+    });
+  }
+
+  downloadClassIncidentReport(classId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/reports/classes/${classId}/incidents`, {
+      responseType: 'blob',
+    });
+  }
 }
+
