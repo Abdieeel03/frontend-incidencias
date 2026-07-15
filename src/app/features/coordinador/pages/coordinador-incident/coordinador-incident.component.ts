@@ -3,10 +3,11 @@ import { DatePipe } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { CoordinadorApiService } from '../../services/coordinador-api.service';
 import { IncidentResponse, IncidentStatus } from '../../models/incident-response.model';
+import { PaginatorComponent } from '@shared/components/paginator/paginator.component';
 
 @Component({
   selector: 'app-coordinador-incident',
-  imports: [DatePipe],
+  imports: [DatePipe, PaginatorComponent],
   templateUrl: './coordinador-incident.component.html',
   styleUrl: './coordinador-incident.component.css',
 })
@@ -16,6 +17,10 @@ export class CoordinadorIncidentComponent {
   // Filtros
   protected readonly search = signal('');
   protected readonly statusFilter = signal<'ALL' | IncidentStatus>('ALL');
+
+  // Paginación
+  protected readonly PAGE_SIZE = 10;
+  protected readonly currentPage = signal(0);
 
   // Modal
   protected readonly selectedIncident = signal<IncidentResponse | null>(null);
@@ -57,6 +62,14 @@ export class CoordinadorIncidentComponent {
 
     return result;
   });
+
+  // Lista paginada
+  protected readonly paginatedIncidents = computed(() => {
+    const filtered = this.filteredIncidents();
+    const start = this.currentPage() * this.PAGE_SIZE;
+    return filtered.slice(start, start + this.PAGE_SIZE);
+  });
+
 
   // UI Handlers
   protected onSearchInput(event: Event): void {

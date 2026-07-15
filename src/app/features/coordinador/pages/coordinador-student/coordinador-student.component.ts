@@ -10,6 +10,7 @@ import {
   UpdateStudentRequest,
 } from '@core/auth/models/student-response.model';
 import { UserResponse } from '@core/auth/models/user-response.model';
+import { PaginatorComponent } from '@shared/components/paginator/paginator.component';
 
 export type Student = StudentResponse;
 
@@ -29,7 +30,7 @@ export type StudentDetail = StudentResponse & {
 
 @Component({
   selector: 'app-coordinador-student',
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe, PaginatorComponent],
   templateUrl: './coordinador-student.component.html',
   styleUrl: './coordinador-student.component.css',
 })
@@ -48,6 +49,10 @@ export class CoordinadorStudentComponent implements OnInit {
   protected readonly isDetailOpen = signal(false);
   protected readonly isDeleteOpen = signal(false);
   protected readonly isRestoreOpen = signal(false);
+
+  // Paginación
+  protected readonly PAGE_SIZE = 10;
+  protected readonly currentPage = signal(0);
 
   // Data Signals
   protected readonly students = signal<Student[]>([]);
@@ -87,6 +92,14 @@ export class CoordinadorStudentComponent implements OnInit {
       );
     });
   });
+
+  // Lista paginada
+  protected readonly paginatedStudents = computed(() => {
+    const filtered = this.filteredStudents();
+    const start = this.currentPage() * this.PAGE_SIZE;
+    return filtered.slice(start, start + this.PAGE_SIZE);
+  });
+
 
   ngOnInit(): void {
     this.loadStudents();

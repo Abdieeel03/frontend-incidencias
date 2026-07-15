@@ -97,7 +97,7 @@
                 </td>
               </tr>
             } @else {
-              @for (incident of filteredIncidents(); track incident.id) {
+              @for (incident of paginatedIncidents(); track incident.id) {
                 <tr>
                   <td>
                     <span class="incident-title">{{ incident.title }}</span>
@@ -183,6 +183,13 @@
           </tbody>
         </table>
       </div>
+      @if (filteredIncidents().length > 0) {
+        <app-paginator 
+          [totalItems]="filteredIncidents().length" 
+          [pageSize]="PAGE_SIZE"
+          (pageChange)="currentPage.set($event)"
+        />
+      }
     </div>
   }
 
