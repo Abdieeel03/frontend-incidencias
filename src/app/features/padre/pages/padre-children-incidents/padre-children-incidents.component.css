@@ -186,6 +186,21 @@
   text-align: center;
 }
 
+.timeline-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.btn-export-pdf {
+  padding: 6px 12px;
+  font-size: var(--font-size-body-sm);
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+
 @media (max-width: 900px) {
   .children-page {
     padding: var(--space-page-mobile);
@@ -197,8 +212,9 @@
 }
 
 @media (max-width: 560px) {
-  .incident-heading {
+  .incident-heading, .timeline-header-actions {
     flex-direction: column;
     gap: var(--space-sm);
+    align-items: flex-start;
   }
 }
